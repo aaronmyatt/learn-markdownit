@@ -41,7 +41,7 @@ await $.withRetries({
   },
 });
 await $`rm -rf /tmp/ditch`;
-
+```
 
 ## copy everything from tmp
 ```ts
