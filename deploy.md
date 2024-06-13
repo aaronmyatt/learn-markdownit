@@ -6,7 +6,11 @@ import $ from "jsr:@david/dax";
 
 ## Checkout pages branch
 ```ts
-await $`git checkout -b pages`;
+try {
+    await $`git checkout pages`;
+} catch {
+    await $`git checkout -b pages`;
+}
 ```
 
 ## reset to main
