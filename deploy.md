@@ -37,7 +37,7 @@ await $`rm -rf /tmp/ditch`;
 
 ## copy everything from tmp
 ```ts
-await $`cp -r tmp/_site/ .`;
+await $`cp -r /tmp/_site/ .`;
 ```
 
 ## commit
