@@ -48,3 +48,8 @@ await $`git commit -m "deploy-${new Date().toISOString()}"`;
 ```ts
 await $`git push origin pages --force`;
 ```
+
+## checkout main
+```ts
+await $`git checkout main`;
+```
