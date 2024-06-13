@@ -30,7 +30,8 @@ await $`cp -r _site /tmp/_site`;
 
 ## delete everything
 ```ts
-await $`rm -rf /tmp/ditch`;
+await $`rm -rf /tmp/ditch; mkdir /tmp/ditch; mv * /tmp/ditch; rm -rf /tmp/ditch`;
+```
 await $`mkdir /tmp/ditch`;
 await $.withRetries({
   count: 5,
@@ -40,7 +41,7 @@ await $.withRetries({
   },
 });
 await $`rm -rf /tmp/ditch`;
-```
+
 
 ## copy everything from tmp
 ```ts
