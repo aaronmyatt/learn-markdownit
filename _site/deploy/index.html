@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html><head></head><body><h1>Deploy to github pages</h1>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">import</span> $ <span class="hljs-keyword">from</span> <span class="hljs-string">"jsr:@david/dax"</span>;
+</code></pre>
+<h2>Checkout pages branch</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">try</span> {
+    <span class="hljs-keyword">await</span> $<span class="hljs-string">`git checkout pages`</span>;
+} <span class="hljs-keyword">catch</span> {
+    <span class="hljs-keyword">await</span> $<span class="hljs-string">`git checkout -b pages`</span>;
+}
+</code></pre>
+<h2>reset to main</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> $<span class="hljs-string">`git reset --hard main`</span>;
+</code></pre>
+<h2>Build</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> $<span class="hljs-string">`PROD=1 deno task build`</span>;
+</code></pre>
+<h2>copy _site to tmp</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> $<span class="hljs-string">`cp -r _site /tmp/_site`</span>;
+</code></pre>
+<h2>delete everything</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> $<span class="hljs-string">`rm -rf /tmp/ditch;`</span>
+<span class="hljs-keyword">await</span> $<span class="hljs-string">`mkdir /tmp/ditch`</span>;
+<span class="hljs-keyword">await</span> $.<span class="hljs-title function_">sleep</span>(<span class="hljs-number">1000</span>);
+<span class="hljs-keyword">await</span> $.<span class="hljs-title function_">withRetries</span>({
+  <span class="hljs-attr">count</span>: <span class="hljs-number">5</span>,
+  <span class="hljs-attr">delay</span>: <span class="hljs-string">"1s"</span>,
+  <span class="hljs-attr">action</span>: <span class="hljs-keyword">async</span> () =&gt; {
+    <span class="hljs-keyword">await</span> $<span class="hljs-string">`mv * /tmp/ditch`</span>;
+  },
+});
+<span class="hljs-keyword">await</span> $<span class="hljs-string">`rm -rf /tmp/ditch`</span>;
+</code></pre>
+<h2>copy everything from tmp</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> $<span class="hljs-string">`cp -r /tmp/_site .`</span>;
+</code></pre>
+<h2>commit</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> $<span class="hljs-string">`git add .`</span>;
+<span class="hljs-keyword">await</span> $<span class="hljs-string">`git commit -m "deploy-<span class="hljs-subst">${<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>().toISOString()}</span>"`</span>;
+</code></pre>
+<h2>push</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> $<span class="hljs-string">`git push origin pages --force`</span>;
+</code></pre>
+<h2>checkout main</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> $<span class="hljs-string">`git checkout main`</span>;
+</code></pre>
+</body></html>
