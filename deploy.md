@@ -30,7 +30,9 @@ await $`cp -r _site tmp/_site`;
 
 ## delete everything
 ```ts
-await $`rm -rf *`;
+await $`mkdir /tmp/ditch`;
+await $`mv * /tmp/ditch`;
+await $`rm -rf /tmp/ditch`;
 ```
 
 ## copy everything from tmp
