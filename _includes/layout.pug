@@ -1,0 +1,48 @@
+head
+    title Learn markdown-it
+    if(prod)
+      base(href="/learn-markdownit/")
+    else
+      base(href="/")
+    link(rel="stylesheet", href="/styles.css")
+
+include header.pug
+
+.container.space-y-10.my-10.flex.flex-col.items-center.mx-auto
+  button.block.btn.btn-lg.btn-wide.btn-primary(type="button", onclick="evalPd()") Run Pipedown
+  
+  .prose(class="prose-2xl")
+      | !{content}
+
+
+script(type="module").
+  import {process} from "/.pd/scripts/evalPipedown/index.esm.js";
+  window._evalPd = process;
+
+script.
+  async function evalPd() {
+    const url = new URL(window.location.href)
+    const name = url.pathname.slice(1) || 'index'
+    const output = await window._evalPd({name});
+    
+    const dialog = document.createElement('dialog')
+    dialog.classList.add('modal')
+    // escape magic: https://stackoverflow.com/questions/6234773/can-i-escape-html-special-chars-in-javascript
+    dialog.innerHTML = `<div class="modal-box w-11/12 max-w-5xl">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+      </form>
+      <div class="mockup-code mt-5">
+        <pre data-prefix="$"><code>pd run ${name}
+  ${JSON.stringify(output.output, null, '  ')
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;")}
+    </code></pre>
+      </div>
+    </div>`
+    document.body.appendChild(dialog)
+    dialog.showModal();
+  }

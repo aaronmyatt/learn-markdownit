@@ -1,2 +1,5 @@
-.pd/
+_cache
+.DS_Store
 repl
+.pd/
+.deno_lsp/
