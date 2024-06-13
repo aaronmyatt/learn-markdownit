@@ -32,7 +32,13 @@ await $`cp -r _site tmp/_site`;
 ```ts
 await $`rm -rf /tmp/ditch`;
 await $`mkdir /tmp/ditch`;
-await $`mv * /tmp/ditch`;
+await $.withRetries({
+  count: 5,
+  delay: "1s",
+  action: async () => {
+    await $`mv * /tmp/ditch/`;
+  },
+});
 await $`rm -rf /tmp/ditch`;
 ```
 
