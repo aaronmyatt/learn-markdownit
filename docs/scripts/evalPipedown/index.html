@@ -10,7 +10,7 @@
 </ul>
 <h2>generateUrl</h2>
 <p>The scripts will be in a consistent location, so we can generate the url based on the script/file name alone.</p>
-<pre><code class="language-ts hljs language-typescript">input.<span class="hljs-property">url</span> = <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(<span class="hljs-string">`/pd/<span class="hljs-subst">${input.name}</span>/index.esm.js`</span>, <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">url</span>)
+<pre><code class="language-ts hljs language-typescript">input.<span class="hljs-property">url</span> = <span class="hljs-string">`./pd/<span class="hljs-subst">${input.name}</span>/index.esm.js`</span>;
 <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(input.<span class="hljs-property">url</span>, <span class="hljs-keyword">import</span>.<span class="hljs-property">meta</span>.<span class="hljs-property">url</span>);
 </code></pre>
 <h2>importScript</h2>

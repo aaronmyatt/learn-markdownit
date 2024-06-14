@@ -1,6 +1,6 @@
 import { default as deploy, process as deployProcess } from "deploy";
-import { default as evalPipedown, process as evalPipedownProcess } from "evalPipedown";
 import { default as index, process as indexProcess } from "index";
+import { default as evalPipedown, process as evalPipedownProcess } from "evalPipedown";
 import $p from "jsr:@pd/pointers@0.1.1";
 
 function test(pipe, { exclude = [], test = true } = {}) {
@@ -40,8 +40,8 @@ async function step(pipe, { exclude = [], test = true } = {}) {
 }
 
 const testDeploy = () => test(deploy);
-const testEvalPipedown = () => test(evalPipedown);
 const testIndex = () => test(index);
+const testEvalPipedown = () => test(evalPipedown);
 const stepDeploy = () => step(deploy);
-const stepEvalPipedown = () => step(evalPipedown);
 const stepIndex = () => step(index);
+const stepEvalPipedown = () => step(evalPipedown);

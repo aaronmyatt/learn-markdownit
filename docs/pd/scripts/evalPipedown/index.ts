@@ -45,7 +45,7 @@ export async function checkName (input, opts) {
 
 }
 export async function generateUrl (input, opts) {
-    input.url = new URL(`/pd/${input.name}/index.esm.js`, import.meta.url)
+    input.url = `./pd/${input.name}/index.esm.js`;
 console.log(input.url, import.meta.url);
 
 }
