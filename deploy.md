@@ -4,62 +4,38 @@
 import $ from "jsr:@david/dax";
 ```
 
-## Checkout pages branch
+## checkout pages branch
 ```ts
-try {
-    await $`git checkout pages`;
-} catch {
-    await $`git checkout -b pages`;
-}
+await $`git checkout pages`
 ```
 
-## reset to main
+## merge with main
 ```ts
-await $`git reset --hard main`;
+await $`git merge main`
 ```
 
-## Build
+## pd build
 ```ts
-await $`PROD=1 deno task build`;
+await $`pd clean`
+await $`pd build`
 ```
 
-## copy _site to tmp
+
+## build latest site
 ```ts
-await $`cp -r _site /tmp/_site`;
+await $`PROD=1 deno task build --dest=docs`
 ```
 
-## delete everything
+## commit latest
 ```ts
-await $`rm -rf /tmp/ditch;`
-await $`mkdir /tmp/ditch`;
-await $.sleep(1000);
-await $.withRetries({
-  count: 5,
-  delay: "1s",
-  action: async () => {
-    await $`mv * /tmp/ditch`;
-  },
-});
-await $`rm -rf /tmp/ditch`;
-```
-
-## copy everything from tmp
-```ts
-await $`cp -r /tmp/_site .`;
-```
-
-## commit
-```ts
-await $`git add .`;
-await $`git commit -m "deploy-${new Date().toISOString()}"`;
-```
-
-## push
-```ts
-await $`git push origin pages --force`;
+await $`git add .`
+await $`git commit -m "latest-${new Date().toISOString()}"`
+await $`git push`
 ```
 
 ## checkout main
 ```ts
-await $`git checkout main`;
+await $`git checkout main`
 ```
+
+

@@ -1,5 +1,6 @@
 _cache
 .DS_Store
 repl
-.pd/
+/.pd/
 .deno_lsp/
+_site/
