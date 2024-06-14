@@ -14,8 +14,6 @@ include header.pug
 script(type="importmap").
   {
     "imports": {
-      "/": "#{basePath}",
-      "./": "#{basePath}",
       "evalPipedown": "./pd/scripts/evalPipedown/index.esm.js"
     }
   }
@@ -26,7 +24,7 @@ script(type="module").
 script.
   async function evalPd() {
     const url = new URL(window.location.href)
-    const name = url.pathname.slice(1) || 'index'
+    const name = url.pathname.split('/').filter(Boolean).filter(part => part !== 'learn-markdownit').find(Boolean) || 'index'
     const output = await window._evalPd({name});
     
     const dialog = document.createElement('dialog')

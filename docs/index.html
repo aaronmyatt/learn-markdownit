@@ -25,15 +25,13 @@ the top level keys.</p>
 </code></pre>
 </div></div><script type="importmap">{
   "imports": {
-    "/": "https://aaronmyatt.github.io/learn-markdownit/",
-    "./": "https://aaronmyatt.github.io/learn-markdownit/",
     "evalPipedown": "./pd/scripts/evalPipedown/index.esm.js"
   }
 }</script><script type="module">import {process} from "evalPipedown";
 window._evalPd = process;
 </script><script>async function evalPd() {
   const url = new URL(window.location.href)
-  const name = url.pathname.slice(1) || 'index'
+  const name = url.pathname.split('/').filter(Boolean).filter(part => part !== 'learn-markdownit').find(Boolean) || 'index'
   const output = await window._evalPd({name});
   
   const dialog = document.createElement('dialog')

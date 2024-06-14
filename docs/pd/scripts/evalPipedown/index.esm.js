@@ -279,7 +279,7 @@ var evalPipedown_default = {
       }
     },
     {
-      code: "input.url = `./pd/${input.name}/index.esm.js`;\nconsole.log(input.url, import.meta.url);\n",
+      code: "input.url = `/pd/${input.name}/index.esm.js`;\nconsole.log(input.url, import.meta);\n",
       range: [
         32,
         34
@@ -370,8 +370,8 @@ async function checkName(input, opts) {
   throw new Error("No name property found in script");
 }
 async function generateUrl(input, opts) {
-  input.url = `./pd/${input.name}/index.esm.js`;
-  console.log(input.url, import.meta.url);
+  input.url = `/pd/${input.name}/index.esm.js`;
+  console.log(input.url, import.meta);
 }
 async function importScript(input, opts) {
   input.script = await import(input.url);

@@ -60,7 +60,7 @@
       }
     },
     {
-      "code": "input.url = `./pd/${input.name}/index.esm.js`;\nconsole.log(input.url, import.meta.url);\n",
+      "code": "input.url = `/pd/${input.name}/index.esm.js`;\nconsole.log(input.url, import.meta);\n",
       "range": [
         32,
         34
