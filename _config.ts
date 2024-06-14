@@ -11,7 +11,7 @@ const site = lume({
 });
 
 const prodOrNot = Deno.env.get('PROD')
-site.data("prod", !!prodOrNot);
+site.data("basePath", prodOrNot ? "https://aaronmyatt.github.io/learn-markdownit/" : "/");
 
 site.use(code_highlight({
     extensions: [".html", ".js", ".ts", ".md"],
