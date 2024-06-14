@@ -30,4 +30,12 @@ await $`PROD=1 deno task build --dest=docs`
 ```ts
 await $`git add .`
 await $`git commit -m "latest-${new Date().toISOString()}"`
+await $`git push`
 ```
+
+## checkout main
+```ts
+await $`git checkout main`
+```
+
+
