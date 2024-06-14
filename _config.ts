@@ -24,6 +24,6 @@ site.use(tailwindcss({
     },
 }));
 site.use(postcss());
-site.copy('.pd');
+site.copy('.pd', 'pd');
 
 export default site;
