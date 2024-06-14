@@ -1,0 +1,137 @@
+{
+  "fileName": "deploy",
+  "dir": ".pd/deploy",
+  "config": {
+    "on": {},
+    "emit": true,
+    "persist": true,
+    "exclude": [
+      "node_modules",
+      "dist",
+      "build",
+      "coverage",
+      "public",
+      "temp",
+      "docs/*",
+      "docs/**/*"
+    ]
+  },
+  "name": "Deploy to github pages",
+  "camelName": "deployToGithubPages",
+  "steps": [
+    {
+      "name": "emitStartEvent",
+      "code": "const event = new CustomEvent('pd:pipe:start', {detail: {input, opts}})\n          dispatchEvent(event)",
+      "funcName": "emitStartEvent",
+      "inList": false,
+      "range": [
+        0,
+        0
+      ],
+      "internal": true
+    },
+    {
+      "name": "persistInput",
+      "code": "\n      const kvAvailable = typeof Deno !== 'undefined' && typeof Deno.openKv === 'function'\n      if(kvAvailable) {\n        try {\n          const db = await Deno.openKv()\n          const key = ['pd', 'input', opts.fileName]\n          try {\n              await db.set(key, JSON.stringify(input))\n          } catch (e) {\n            const safe = {\n              error: e.message,\n            }\n            for (const [k, v] of Object.entries(input)) {\n                safe[k] = typeof v;\n            }\n            await db.set(key, safe)\n          }\n        } catch (e) {\n            console.error(e)\n        }\n      } else {\n        const key = 'pd:input:' + opts.fileName \n        const inputJson = localStorage.getItem(key) || '[]'\n        const storedJson = JSON.parse(inputJson)\n        storedJson.push(JSON.stringify(input))\n        localStorage.setItem(key, JSON.stringify(storedJson))\n      }\n      ",
+      "funcName": "persistInput",
+      "inList": false,
+      "range": [
+        0,
+        0
+      ],
+      "internal": true
+    },
+    {
+      "code": "import $ from \"jsr:@david/dax\";\n",
+      "range": [
+        3,
+        5
+      ],
+      "name": "Deploy to github pages",
+      "funcName": "deployToGithubPages",
+      "inList": false
+    },
+    {
+      "code": "await $`git checkout pages`\n",
+      "range": [
+        9,
+        11
+      ],
+      "name": "checkout pages branch",
+      "funcName": "checkoutPagesBranch",
+      "inList": false
+    },
+    {
+      "code": "await $`git merge main`\n",
+      "range": [
+        15,
+        17
+      ],
+      "name": "merge with main",
+      "funcName": "mergeWithMain",
+      "inList": false
+    },
+    {
+      "code": "await $`pd clean`\nawait $`pd build`\n",
+      "range": [
+        21,
+        23
+      ],
+      "name": "pd build",
+      "funcName": "pdBuild",
+      "inList": false
+    },
+    {
+      "code": "await $`PROD=1 deno task build --dest=docs`\n",
+      "range": [
+        27,
+        29
+      ],
+      "name": "build latest site",
+      "funcName": "buildLatestSite",
+      "inList": false
+    },
+    {
+      "code": "await $`git add .`\nawait $`git commit -m \"latest-${new Date().toISOString()}\"`\nawait $`git push`\n",
+      "range": [
+        33,
+        35
+      ],
+      "name": "commit latest",
+      "funcName": "commitLatest",
+      "inList": false
+    },
+    {
+      "code": "await $`git checkout main`\n",
+      "range": [
+        39,
+        41
+      ],
+      "name": "checkout main",
+      "funcName": "checkoutMain",
+      "inList": false
+    },
+    {
+      "name": "persistOutput",
+      "code": "\n      const kvAvailable = typeof Deno !== 'undefined' && typeof Deno.openKv === 'function'\n      if(kvAvailable) {\n        try {\n          const db = await Deno.openKv()\n          const key = ['pd', 'output', opts.fileName]\n          try {\n              await db.set(key, JSON.stringify(input))\n          } catch (e) {\n            const safe = {\n              error: e.message,\n            }\n            for (const [k, v] of Object.entries(input)) {\n                safe[k] = typeof v;\n            }\n            await db.set(key, safe)\n          }\n        } catch (e) {\n            console.error(e)\n        }\n      } else {\n        const key = 'pd:output:' + opts.fileName \n        const inputJson = localStorage.getItem(key) || '[]'\n        const storedJson = JSON.parse(inputJson)\n        storedJson.push(JSON.stringify(input))\n        localStorage.setItem(key, JSON.stringify(storedJson))\n      }\n      ",
+      "funcName": "persistOutput",
+      "inList": false,
+      "range": [
+        0,
+        0
+      ],
+      "internal": true
+    },
+    {
+      "name": "emitEndEvent",
+      "code": "const event = new CustomEvent('pd:pipe:end', {detail: {input, opts}})\n          dispatchEvent(event)",
+      "funcName": "emitEndEvent",
+      "inList": false,
+      "range": [
+        0,
+        0
+      ],
+      "internal": true
+    }
+  ]
+}

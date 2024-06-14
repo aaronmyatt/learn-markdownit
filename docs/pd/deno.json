@@ -1,0 +1,24 @@
+{
+  "imports": {
+    "/": "./",
+    "./": "./",
+    "deploy": "./deploy/index.ts",
+    "/deploy": "./deploy/index.ts",
+    "index": "./index/index.ts",
+    "/_site/pd/deploy/index": "./_site/pd/deploy/index/index.ts",
+    "/_site/pd/scripts/evalPipedown/index": "./_site/pd/scripts/evalPipedown/index/index.ts",
+    "/_site/pd/index/index": "./_site/pd/index/index/index.ts",
+    "evalPipedown": "./scripts/evalPipedown/index.ts",
+    "/scripts/evalPipedown": "./scripts/evalPipedown/index.ts",
+    "/index": "./index/index.ts"
+  },
+  "lint": {
+    "include": [
+      ".pd/**/*.ts"
+    ],
+    "exclude": [
+      ".pd/**/*.json",
+      ".pd/**/*.md"
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html><head></head><body><h1>Deploy to github pages</h1>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">import</span> $ <span class="hljs-keyword">from</span> <span class="hljs-string">"jsr:@david/dax"</span>;
+</code></pre>
+<h2>checkout pages branch</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> $<span class="hljs-string">`git checkout pages`</span>
+</code></pre>
+<h2>merge with main</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> $<span class="hljs-string">`git merge main`</span>
+</code></pre>
+<h2>pd build</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> $<span class="hljs-string">`pd clean`</span>
+<span class="hljs-keyword">await</span> $<span class="hljs-string">`pd build`</span>
+</code></pre>
+<h2>build latest site</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> $<span class="hljs-string">`PROD=1 deno task build --dest=docs`</span>
+</code></pre>
+<h2>commit latest</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> $<span class="hljs-string">`git add .`</span>
+<span class="hljs-keyword">await</span> $<span class="hljs-string">`git commit -m "latest-<span class="hljs-subst">${<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>().toISOString()}</span>"`</span>
+<span class="hljs-keyword">await</span> $<span class="hljs-string">`git push`</span>
+</code></pre>
+<h2>checkout main</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> $<span class="hljs-string">`git checkout main`</span>
+</code></pre>
+</body></html>
