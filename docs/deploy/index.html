@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html><head></head><body><h1>Deploy to github pages</h1>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">import</span> $ <span class="hljs-keyword">from</span> <span class="hljs-string">"jsr:@david/dax"</span>;
+<span class="hljs-keyword">import</span> ghpage <span class="hljs-keyword">from</span> <span class="hljs-string">"npm:gh-pages"</span>
+</code></pre>
+<h2>build latest site</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> $<span class="hljs-string">`PROD=1 deno task build`</span>
+</code></pre>
+<h2>deploy</h2>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">await</span> ghpage.<span class="hljs-title function_">publish</span>(<span class="hljs-string">"_site"</span>, {<span class="hljs-attr">branch</span>: <span class="hljs-string">'pages'</span>})
+</code></pre>
+</body></html>

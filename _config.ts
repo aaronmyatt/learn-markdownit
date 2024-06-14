@@ -6,7 +6,9 @@ import postcss from "lume/plugins/postcss.ts";
 import typography from "npm:@tailwindcss/typography";
 import daisyui from "npm:daisyui";
 
-const site = lume();
+const site = lume({
+    dest: "docs"
+});
 
 const prodOrNot = Deno.env.get('PROD')
 site.data("prod", !!prodOrNot);
