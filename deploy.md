@@ -2,6 +2,18 @@
 
 ```ts
 import $ from "jsr:@david/dax";
+import { exists, move, copy } from "jsr:@std/fs";
+import { join } from "jsr:@std/path";
+```
+
+## create tmp dirs
+```ts
+//await Deno.remove("/tmp/ditch", { recursive: true }).catch(e => console.log(e.message));
+//await Deno.remove("/tmp/_site", { recursive: true }).catch(e => console.log(e.message));
+//await Deno.mkdir("/tmp/ditch", { recursive: true }).catch(e => console.log(e.message));
+//await Deno.mkdir("/tmp/_site", { recursive: true }).catch(e => console.log(e.message));
+//await exists("/tmp/ditch", { isDirectory: true });
+//await exists("/tmp/_site", { isDirectory: true });
 ```
 
 ## Checkout pages branch
@@ -25,27 +37,17 @@ await $`PROD=1 deno task build`;
 
 ## copy _site to tmp
 ```ts
-await $`cp -r _site /tmp/_site`;
+await copy(join(Deno.cwd(), "_site"), "/tmp/_site", { overwrite: true });
 ```
 
-## delete everything
+## move everything
 ```ts
-await $`rm -rf /tmp/ditch;`
-await $`mkdir /tmp/ditch`;
-await $.sleep(1000);
-await $.withRetries({
-  count: 5,
-  delay: "1s",
-  action: async () => {
-    await $`mv * /tmp/ditch`;
-  },
-});
-await $`rm -rf /tmp/ditch`;
+await Deno.remove(Deno.cwd(), { recusive: true });
 ```
 
 ## copy everything from tmp
 ```ts
-await $`cp -r /tmp/_site .`;
+await copy("/tmp/_site", Deno.cwd(), { overwrite: true });
 ```
 
 ## commit
@@ -62,4 +64,10 @@ await $`git push origin pages --force`;
 ## checkout main
 ```ts
 await $`git checkout main`;
+```
+
+## cleanup
+```
+await Deno.remove("/tmp/ditch", { recursive: true }).catch(e => console.log(e.message));
+await Deno.remove("/tmp/_site", { recursive: true }).catch(e => console.log(e.message));
 ```
