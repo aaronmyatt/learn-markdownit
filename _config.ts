@@ -6,9 +6,7 @@ import postcss from "lume/plugins/postcss.ts";
 import typography from "npm:@tailwindcss/typography";
 import daisyui from "npm:daisyui";
 
-const site = lume({
-    dest: "docs"
-});
+const site = lume();
 
 const prodOrNot = Deno.env.get('PROD')
 site.data("basePath", prodOrNot ? "https://aaronmyatt.github.io/learn-markdownit/" : "http://localhost:3000/");

@@ -3,3 +3,4 @@ _cache
 repl
 /.pd/
 .deno_lsp/
+_site/

@@ -2,15 +2,32 @@
 
 ```ts
 import $ from "jsr:@david/dax";
-import ghpage from "npm:gh-pages"
 ```
+
+## checkout pages branch
+```ts
+await $`git checkout pages`
+```
+
+## merge with main
+```ts
+await $`git merge main`
+```
+
+## pd build
+```ts
+await $`pd clean`
+await $`pd build`
+```
+
 
 ## build latest site
 ```ts
-await $`PROD=1 deno task build`
+await $`PROD=1 deno task build --dest=docs`
 ```
 
-## deploy
+## commit latest
 ```ts
-await ghpage.publish("_site", {branch: 'pages'})
+await $`git add .`
+await $`git commit -m "latest-${new Date().toISOString()}"`
 ```
