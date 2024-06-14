@@ -13,7 +13,6 @@ Let's check that we have a `name` property for now.
 The scripts will be in a consistent location, so we can generate the url based on the script/file name alone. 
 ```ts
 input.url = `/pd/${input.name}/index.esm.js`;
-console.log(input.url, import.meta);
 ```
 
 ## importScript
