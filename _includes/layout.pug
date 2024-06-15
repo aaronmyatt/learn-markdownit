@@ -6,7 +6,17 @@ head
 include header.pug
 
 .container.space-y-10.my-10.flex.flex-col.items-center.mx-auto
-  button.block.btn.btn-lg.btn-wide.btn-primary(type="button", onclick="evalPd()") Run Pipedown
+  .flex.gap-4
+    button.block.btn.btn-lg.btn-wide.btn-primary(type="button", onclick="presentJSON()") Run Pipedown
+    #htmldrawer.drawer.drawer-end.hidden
+      input#my-drawer-4.drawer-toggle(type="checkbox")
+      .drawer-content
+        //- Page content here
+        label(for="my-drawer-4", class="drawer-button btn btn-primary btn-lg btn-wide") Render HTML
+      .drawer-side.z-20
+        label(for="my-drawer-4", aria-label="close sidebar", class="drawer-overlay")
+        #htmldrawerbody.p-4.min-h-full.bg-base-200.text-base-content.space-y-6(class="w-11/12 md:w-1/2")
+          
   
   .prose(class="prose-2xl")
       | !{content}
@@ -16,37 +26,14 @@ script(type="importmap").
     "imports": {
       "/": "#{basePath}",
       "./": "#{basePath}",
-      "evalPipedown": "./pd/scripts/evalPipedown/index.esm.js"
+      "evalPipedown": "./pd/scripts/evalPipedown/index.esm.js",
+      "presentOutput": "./pd/scripts/presentOutput/index.esm.js",
+      "presentMarkdown": "./pd/scripts/presentMarkdown/index.esm.js"
     }
   }
 script(type="module").
-  import {process} from "evalPipedown";
-  window._evalPd = process;
+  import presentOutput from "presentOutput";
+  import presentMarkdown from "presentMarkdown";
+  window.presentJSON = () => presentOutput.process().then(() => presentMarkdown.process());
 
-script.
-  async function evalPd() {
-    const url = new URL(window.location.href)
-    const name = url.pathname.split('/').filter(Boolean).filter(part => part !== 'learn-markdownit').find(Boolean) || 'index'
-    const output = await window._evalPd({name});
-    
-    const dialog = document.createElement('dialog')
-    dialog.classList.add('modal')
-    // escape magic: https://stackoverflow.com/questions/6234773/can-i-escape-html-special-chars-in-javascript
-    dialog.innerHTML = `<div class="modal-box w-11/12 max-w-5xl">
-      <form method="dialog">
-        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-      </form>
-      <div class="mockup-code mt-5">
-        <pre data-prefix="$"><code>pd run ${name}
-  ${JSON.stringify(output.output, null, '  ')
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;")}
-    </code></pre>
-      </div>
-    </div>`
-    document.body.appendChild(dialog)
-    dialog.showModal();
-  }
+  presentMarkdown.process();
