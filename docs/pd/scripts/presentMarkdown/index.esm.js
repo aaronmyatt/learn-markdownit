@@ -216,10 +216,10 @@ function Pipe(funcs, opts) {
   return new pipeline_default(wrappedFuncs);
 }
 
-// .pd/scripts/evalPipedown/index.json
-var evalPipedown_default = {
-  fileName: "evalPipedown",
-  dir: ".pd/scripts/evalPipedown",
+// .pd/scripts/presentMarkdown/index.json
+var presentMarkdown_default = {
+  fileName: "presentMarkdown",
+  dir: ".pd/scripts/presentMarkdown",
   config: {
     on: {},
     emit: true,
@@ -238,8 +238,8 @@ var evalPipedown_default = {
       "esm"
     ]
   },
-  name: "Eval PD",
-  camelName: "evalPD",
+  name: "Present Markdown",
+  camelName: "presentMarkdown",
   steps: [
     {
       name: "emitStartEvent",
@@ -264,49 +264,54 @@ var evalPipedown_default = {
       internal: true
     },
     {
-      code: 'throw new Error("No name property found in script");\n',
+      code: "input.url = input.url || new URL(window.location.href)\ninput.name = input.url.pathname.split('/').filter(Boolean).filter(part => part !== 'learn-markdownit').find(Boolean) || 'index'\n",
       range: [
-        21,
-        23
+        15,
+        17
       ],
-      name: "checkName",
-      funcName: "checkName",
+      name: "determine script name",
+      funcName: "determineScriptName",
+      inList: false
+    },
+    {
+      code: "const {markdown} = JSON.parse(localStorage.getItem('evalPipedown::'+input.name) || '{}')\ninput.markdown = markdown\n",
+      range: [
+        29,
+        31
+      ],
+      name: "fetchMarkdown",
+      funcName: "fetchMarkdown",
+      inList: false
+    },
+    {
+      code: "document.querySelector('#htmldrawer').classList.remove('hidden')\nconsole.log(input)\n",
+      range: [
+        41,
+        44
+      ],
+      name: "showDrawerButton",
+      funcName: "showDrawerButton",
       inList: true,
       config: {
-        not: [
-          "/name"
+        checks: [
+          "/markdown"
         ]
       }
     },
     {
-      code: "input.url = `/pd/${input.name}/index.esm.js`;\n",
+      code: "for (const md in input.markdown) {\n    const markdownDiv = document.createElement('div')\n    markdownDiv.classList.add('prose')\n\n    markdownDiv.innerHTML = `<div class=\"mockup-window border border-base-400 bg-base-300\">\n    <code>input.markdown.${md}</code>\n  <div class=\"prose p-5\">${input.markdown[md]}</div>\n</div>`\n    document.querySelector('#htmldrawerbody').appendChild(markdownDiv)\n}\n",
       range: [
-        32,
-        34
+        56,
+        66
       ],
-      name: "generateUrl",
-      funcName: "generateUrl",
-      inList: false
-    },
-    {
-      code: "input.script = await import(input.url);\n",
-      range: [
-        41,
-        43
-      ],
-      name: "importScript",
-      funcName: "importScript",
-      inList: false
-    },
-    {
-      code: "input.output = await input.script.pipe.process();\n",
-      range: [
-        50,
-        52
-      ],
-      name: "runScript",
-      funcName: "runScript",
-      inList: false
+      name: "presentMarkdown",
+      funcName: "presentMarkdown",
+      inList: true,
+      config: {
+        checks: [
+          "/markdown"
+        ]
+      }
     },
     {
       name: "persistOutput",
@@ -333,7 +338,7 @@ var evalPipedown_default = {
   ]
 };
 
-// .pd/scripts/evalPipedown/index.ts
+// .pd/scripts/presentMarkdown/index.ts
 async function emitStartEvent(input, opts) {
   const event = new CustomEvent("pd:pipe:start", { detail: { input, opts } });
   dispatchEvent(event);
@@ -366,17 +371,28 @@ async function persistInput(input, opts) {
     localStorage.setItem(key, JSON.stringify(storedJson));
   }
 }
-async function checkName(input, opts) {
-  throw new Error("No name property found in script");
+async function determineScriptName(input, opts) {
+  input.url = input.url || new URL(window.location.href);
+  input.name = input.url.pathname.split("/").filter(Boolean).filter((part) => part !== "learn-markdownit").find(Boolean) || "index";
 }
-async function generateUrl(input, opts) {
-  input.url = `/pd/${input.name}/index.esm.js`;
+async function fetchMarkdown(input, opts) {
+  const { markdown } = JSON.parse(localStorage.getItem("evalPipedown::" + input.name) || "{}");
+  input.markdown = markdown;
 }
-async function importScript(input, opts) {
-  input.script = await import(input.url);
+async function showDrawerButton(input, opts) {
+  document.querySelector("#htmldrawer").classList.remove("hidden");
+  console.log(input);
 }
-async function runScript(input, opts) {
-  input.output = await input.script.pipe.process();
+async function presentMarkdown(input, opts) {
+  for (const md in input.markdown) {
+    const markdownDiv = document.createElement("div");
+    markdownDiv.classList.add("prose");
+    markdownDiv.innerHTML = `<div class="mockup-window border border-base-400 bg-base-300">
+    <code>input.markdown.${md}</code>
+  <div class="prose p-5">${input.markdown[md]}</div>
+</div>`;
+    document.querySelector("#htmldrawerbody").appendChild(markdownDiv);
+  }
 }
 async function persistOutput(input, opts) {
   const kvAvailable = typeof Deno !== "undefined" && typeof Deno.openKv === "function";
@@ -413,28 +429,28 @@ async function emitEndEvent(input, opts) {
 var funcSequence = [
   emitStartEvent,
   persistInput,
-  checkName,
-  generateUrl,
-  importScript,
-  runScript,
+  determineScriptName,
+  fetchMarkdown,
+  showDrawerButton,
+  presentMarkdown,
   persistOutput,
   emitEndEvent
 ];
-var pipe = Pipe(funcSequence, evalPipedown_default);
+var pipe = Pipe(funcSequence, presentMarkdown_default);
 var process = (input = {}) => pipe.process(input);
-pipe.json = evalPipedown_default;
-var evalPipedown_default2 = pipe;
+pipe.json = presentMarkdown_default;
+var presentMarkdown_default2 = pipe;
 export {
-  checkName,
-  evalPipedown_default2 as default,
+  presentMarkdown_default2 as default,
+  determineScriptName,
   emitEndEvent,
   emitStartEvent,
-  generateUrl,
-  importScript,
+  fetchMarkdown,
   persistInput,
   persistOutput,
   pipe,
+  presentMarkdown,
   process,
-  evalPipedown_default as rawPipe,
-  runScript
+  presentMarkdown_default as rawPipe,
+  showDrawerButton
 };

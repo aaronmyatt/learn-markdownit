@@ -12,8 +12,8 @@
       "coverage",
       "public",
       "temp",
-      "docs/*",
-      "docs/**/*"
+      "docs",
+      "_site"
     ]
   },
   "name": "Deploy to github pages",

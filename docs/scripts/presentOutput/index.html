@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html><head></head><body><h1>Present Pipedown Output</h1>
+<p>Evaluate a Pipedown script and present the output in the browser.</p>
+<p>A migration of this script:</p>
+<pre><code class="language-js hljs language-javascript"><span class="hljs-keyword">async</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">evalPd</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">const</span> url = <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(<span class="hljs-variable language_">window</span>.<span class="hljs-property">location</span>.<span class="hljs-property">href</span>)
+    <span class="hljs-keyword">const</span> name = url.<span class="hljs-property">pathname</span>.<span class="hljs-title function_">split</span>(<span class="hljs-string">'/'</span>).<span class="hljs-title function_">filter</span>(<span class="hljs-title class_">Boolean</span>).<span class="hljs-title function_">filter</span>(<span class="hljs-function"><span class="hljs-params">part</span> =&gt;</span> part !== <span class="hljs-string">'learn-markdownit'</span>).<span class="hljs-title function_">find</span>(<span class="hljs-title class_">Boolean</span>) || <span class="hljs-string">'index'</span>
+    <span class="hljs-keyword">const</span> output = <span class="hljs-keyword">await</span> <span class="hljs-variable language_">window</span>.<span class="hljs-title function_">_evalPd</span>({name});
+    
+    <span class="hljs-keyword">const</span> dialog = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">'dialog'</span>)
+    dialog.<span class="hljs-property">classList</span>.<span class="hljs-title function_">add</span>(<span class="hljs-string">'modal'</span>)
+    <span class="hljs-comment">// escape magic: https://stackoverflow.com/questions/6234773/can-i-escape-html-special-chars-in-javascript</span>
+    dialog.<span class="hljs-property">innerHTML</span> = <span class="hljs-string">`&lt;div class="modal-box w-11/12 max-w-5xl"&gt;
+      &lt;form method="dialog"&gt;
+        &lt;button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"&gt;✕&lt;/button&gt;
+      &lt;/form&gt;
+      &lt;div class="mockup-code mt-5"&gt;
+        &lt;pre data-prefix="$"&gt;&lt;code&gt;pd run <span class="hljs-subst">${name}</span>
+  <span class="hljs-subst">${<span class="hljs-built_in">JSON</span>.stringify(output.output, <span class="hljs-literal">null</span>, <span class="hljs-string">'  '</span>)
+         .replace(/&amp;/g, <span class="hljs-string">"&amp;amp;"</span>)
+         .replace(/&lt;/g, <span class="hljs-string">"&amp;lt;"</span>)
+         .replace(/&gt;/g, <span class="hljs-string">"&amp;gt;"</span>)
+         .replace(/<span class="hljs-string">"/g, "</span>&amp;quot;<span class="hljs-string">")
+         .replace(/'/g, "</span>&amp;#<span class="hljs-number">039</span>;<span class="hljs-string">")}
+    &lt;/code&gt;&lt;/pre&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;`
+    document.body.appendChild(dialog)
+    dialog.showModal();
+  }
+</span></span></span></code></pre>
+<h2>determine script name</h2>
+<p>Try extracting the name of the pipedown script from the URL. We are assuming a markdown document is being presented as HTML so the corresponding browser friendly script will be in the ./.pd directory. We're just extracting whatever is after the basePath.</p>
+<p>TODO: make the basePath a configurable parameter.</p>
+<pre><code class="language-ts hljs language-typescript">input.<span class="hljs-property">url</span> = input.<span class="hljs-property">url</span> || <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(<span class="hljs-variable language_">window</span>.<span class="hljs-property">location</span>.<span class="hljs-property">href</span>)
+input.<span class="hljs-property">name</span> = input.<span class="hljs-property">url</span>.<span class="hljs-property">pathname</span>.<span class="hljs-title function_">split</span>(<span class="hljs-string">'/'</span>).<span class="hljs-title function_">filter</span>(<span class="hljs-title class_">Boolean</span>).<span class="hljs-title function_">filter</span>(<span class="hljs-function"><span class="hljs-params">part</span> =&gt;</span> part !== <span class="hljs-string">'learn-markdownit'</span>).<span class="hljs-title function_">find</span>(<span class="hljs-title class_">Boolean</span>) || <span class="hljs-string">'index'</span>
+</code></pre>
+<h2>evalPd</h2>
+<p>Use [<a href="/scripts/evalPipedown" title="Eval PD">evalPipedown</a>] to evaluate the script. Cache and fetch from Localstorage if available.</p>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">import</span> evalPipedown <span class="hljs-keyword">from</span> <span class="hljs-string">'evalPipedown'</span>
+
+<span class="hljs-comment">// const pastOutput = localStorage.getItem('evalPipedown::'+input.name)</span>
+<span class="hljs-comment">// if(pastOutput){</span>
+<span class="hljs-comment">//     input.output = JSON.parse(pastOutput);</span>
+<span class="hljs-comment">//     return</span>
+<span class="hljs-comment">// }</span>
+
+<span class="hljs-keyword">const</span> {output} = <span class="hljs-keyword">await</span> evalPipedown.<span class="hljs-title function_">process</span>({<span class="hljs-attr">name</span>: input.<span class="hljs-property">name</span>});
+<span class="hljs-variable language_">localStorage</span>.<span class="hljs-title function_">setItem</span>(<span class="hljs-string">'evalPipedown::'</span>+input.<span class="hljs-property">name</span>, <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(output))
+input.<span class="hljs-property">output</span> = output
+</code></pre>
+<h2>escapeOutput</h2>
+<p>Escape the output for presentation. Lifted this handy sequence of replacements from stackoverflow: https://stackoverflow.com/questions/6234773/can-i-escape-html-special-chars-in-javascript</p>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(input);
+input.<span class="hljs-property">json</span> = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(input.<span class="hljs-property">output</span>, <span class="hljs-literal">null</span>, <span class="hljs-string">'  '</span>)
+         .<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/&amp;/g</span>, <span class="hljs-string">"&amp;amp;"</span>)
+         .<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/&lt;/g</span>, <span class="hljs-string">"&amp;lt;"</span>)
+         .<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/&gt;/g</span>, <span class="hljs-string">"&amp;gt;"</span>)
+         .<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/"/g</span>, <span class="hljs-string">"&amp;quot;"</span>)
+         .<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/'/g</span>, <span class="hljs-string">"&amp;#039;"</span>)
+</code></pre>
+<h2>presentation</h2>
+<p>Some simple html to present the JSON output. I like passing along a template literal returning function and combining with the parameters at the point of use. Feels a little neater, more readable and reusable.
+Really enjoying daisyUI. Although it probably makes Adam Wathan cringe due to the reliance on <code>@apply</code>. We are using DaisyUI's <a href="https://daisyui.com/components/modal/">modal</a> here.</p>
+<pre><code class="language-ts hljs language-typescript">input.<span class="hljs-property">presentJSON</span> = <span class="hljs-function">(<span class="hljs-params">json, name</span>) =&gt;</span> <span class="hljs-string">`&lt;div class="modal-box w-11/12 max-w-5xl"&gt;
+      &lt;form method="dialog"&gt;
+        &lt;button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"&gt;✕&lt;/button&gt;
+      &lt;/form&gt;
+      &lt;div class="mockup-code mt-5"&gt;
+        &lt;pre data-prefix="$"&gt;&lt;code&gt;pd run <span class="hljs-subst">${name}</span>.md
+  <span class="hljs-subst">${json}</span>
+    &lt;/code&gt;&lt;/pre&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;`</span>
+</code></pre>
+<h2>render</h2>
+<p>Reuse the modal if it already exists. Otherwise create a new one.</p>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">const</span> el = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">`[name="<span class="hljs-subst">${input.name}</span>"]`</span>)
+<span class="hljs-keyword">if</span>(el){
+    el.<span class="hljs-property">innerHTML</span> = input.<span class="hljs-title function_">presentJSON</span>(input.<span class="hljs-property">json</span>, input.<span class="hljs-property">name</span>)
+    el.<span class="hljs-title function_">showModal</span>()
+    <span class="hljs-keyword">return</span>
+}
+<span class="hljs-keyword">const</span> dialog = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">'dialog'</span>)
+dialog.<span class="hljs-title function_">setAttribute</span>(<span class="hljs-string">'name'</span>, input.<span class="hljs-property">name</span>)
+dialog.<span class="hljs-property">classList</span>.<span class="hljs-title function_">add</span>(<span class="hljs-string">'modal'</span>) <span class="hljs-comment">// daisyUI</span>
+dialog.<span class="hljs-property">innerHTML</span> = input.<span class="hljs-title function_">presentJSON</span>(input.<span class="hljs-property">json</span>, input.<span class="hljs-property">name</span>)
+<span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>.<span class="hljs-title function_">appendChild</span>(dialog)
+dialog.<span class="hljs-title function_">showModal</span>();
+</code></pre>
+<pre><code class="language-json hljs"><span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">"build"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">"esm"</span><span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+</body></html>

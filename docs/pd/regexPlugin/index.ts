@@ -40,19 +40,8 @@ export async function persistInput (input, opts) {
       }
       
 }
-export async function basicUsage (input, opts) {
+export async function regexPluginsForMarkdownIt (input, opts) {
     
-
-input.mdi = markdownit()
-$p.set(input, '/markdown/basics', input.mdi.render('# markdown-it rulezz!'))
-
-}
-export async function renderInline (input, opts) {
-    $p.set(input, '/markdown/basicInline', input.mdi.renderInline('# markdown-it rulezz! __mdi__ *mdi*'))
-
-}
-export async function anonymous50 (input, opts) {
-    input.mdi = Object.keys(input.mdi);
 
 }
 export async function persistOutput (input, opts) {
@@ -91,7 +80,7 @@ export async function emitEndEvent (input, opts) {
 }
 
 const funcSequence = [
-emitStartEvent, persistInput, basicUsage, renderInline, anonymous50, persistOutput, emitEndEvent
+emitStartEvent, persistInput, regexPluginsForMarkdownIt, persistOutput, emitEndEvent
 ]
 const pipe = Pipe(funcSequence, rawPipe);
 const process = (input={}) => pipe.process(input);

@@ -40,19 +40,28 @@ export async function persistInput (input, opts) {
       }
       
 }
-export async function basicUsage (input, opts) {
+export async function pluginsForMarkdownIt (input, opts) {
     
 
-input.mdi = markdownit()
-$p.set(input, '/markdown/basics', input.mdi.render('# markdown-it rulezz!'))
+}
+export async function howDoWeMakePluginsAnyway (input, opts) {
+    const md = markdownit().use((md, options) => {
+    console.log({md, options})
+})
+$p.set(input, '/markdown.dirtyPlugin', md.render('# hello'))
 
 }
-export async function renderInline (input, opts) {
-    $p.set(input, '/markdown/basicInline', input.mdi.renderInline('# markdown-it rulezz! __mdi__ *mdi*'))
-
-}
-export async function anonymous50 (input, opts) {
-    input.mdi = Object.keys(input.mdi);
+export async function rulersToRuleThemAll (input, opts) {
+    const md = markdownit().use((md, options) => {
+    md.inline.ruler.push('wiki', state => {
+        console.log({state})
+    })
+    console.log('#2', {md, options})
+})
+$p.set(input, '/markdown.dirtyInlinePlugin', md.render(`# hello
+how about now
+[wat](/wat)
+[[wikilink]]`))
 
 }
 export async function persistOutput (input, opts) {
@@ -91,7 +100,7 @@ export async function emitEndEvent (input, opts) {
 }
 
 const funcSequence = [
-emitStartEvent, persistInput, basicUsage, renderInline, anonymous50, persistOutput, emitEndEvent
+emitStartEvent, persistInput, pluginsForMarkdownIt, howDoWeMakePluginsAnyway, rulersToRuleThemAll, persistOutput, emitEndEvent
 ]
 const pipe = Pipe(funcSequence, rawPipe);
 const process = (input={}) => pipe.process(input);

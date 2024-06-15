@@ -1,6 +1,6 @@
 {
-  "fileName": "evalPipedown",
-  "dir": ".pd/scripts/evalPipedown",
+  "fileName": "regexPlugin",
+  "dir": ".pd/regexPlugin",
   "config": {
     "on": {},
     "emit": true,
@@ -19,8 +19,8 @@
       "esm"
     ]
   },
-  "name": "Eval PD",
-  "camelName": "evalPD",
+  "name": "Regex Plugins for markdown-it",
+  "camelName": "regexPluginsForMarkdown-It",
   "steps": [
     {
       "name": "emitStartEvent",
@@ -45,48 +45,13 @@
       "internal": true
     },
     {
-      "code": "throw new Error(\"No name property found in script\");\n",
+      "code": "import markdownit from \"npm:markdown-it\";\n",
       "range": [
-        21,
-        23
+        25,
+        27
       ],
-      "name": "checkName",
-      "funcName": "checkName",
-      "inList": true,
-      "config": {
-        "not": [
-          "/name"
-        ]
-      }
-    },
-    {
-      "code": "input.url = `/pd/${input.name}/index.esm.js`;\n",
-      "range": [
-        32,
-        34
-      ],
-      "name": "generateUrl",
-      "funcName": "generateUrl",
-      "inList": false
-    },
-    {
-      "code": "input.script = await import(input.url);\n",
-      "range": [
-        41,
-        43
-      ],
-      "name": "importScript",
-      "funcName": "importScript",
-      "inList": false
-    },
-    {
-      "code": "input.output = await input.script.pipe.process();\n",
-      "range": [
-        50,
-        52
-      ],
-      "name": "runScript",
-      "funcName": "runScript",
+      "name": "Regex Plugins for markdown-it",
+      "funcName": "regexPluginsForMarkdown-It",
       "inList": false
     },
     {

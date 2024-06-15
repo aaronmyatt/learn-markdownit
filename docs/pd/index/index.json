@@ -12,8 +12,8 @@
       "coverage",
       "public",
       "temp",
-      "docs/*",
-      "docs/**/*"
+      "docs",
+      "_site"
     ],
     "build": [
       "esm"
@@ -45,20 +45,20 @@
       "internal": true
     },
     {
-      "code": "import markdownit from \"npm:markdown-it\";\n\ninput.mdi = markdownit()\ninput.basics = input.mdi.render('# markdown-it rulezz!');\n",
+      "code": "import markdownit from \"npm:markdown-it\";\n\ninput.mdi = markdownit()\n$p.set(input, '/markdown/basics', input.mdi.render('# markdown-it rulezz!'))\n",
       "range": [
-        23,
-        25
+        27,
+        29
       ],
       "name": "basic usage",
       "funcName": "basicUsage",
       "inList": false
     },
     {
-      "code": "input.basicInline = input.mdi.render('markdown-it rulezz! __mdi__ **mdi**')\n",
+      "code": "$p.set(input, '/markdown/basicInline', input.mdi.renderInline('# markdown-it rulezz! __mdi__ *mdi*'))\n",
       "range": [
-        36,
-        38
+        40,
+        42
       ],
       "name": "render inline",
       "funcName": "renderInline",
@@ -67,11 +67,11 @@
     {
       "code": "input.mdi = Object.keys(input.mdi);\n",
       "range": [
-        46,
-        48
+        50,
+        52
       ],
-      "name": "anonymous46",
-      "funcName": "anonymous46",
+      "name": "anonymous50",
+      "funcName": "anonymous50",
       "inList": false
     },
     {

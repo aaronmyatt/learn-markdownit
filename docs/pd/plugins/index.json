@@ -1,6 +1,6 @@
 {
-  "fileName": "evalPipedown",
-  "dir": ".pd/scripts/evalPipedown",
+  "fileName": "plugins",
+  "dir": ".pd/plugins",
   "config": {
     "on": {},
     "emit": true,
@@ -19,8 +19,8 @@
       "esm"
     ]
   },
-  "name": "Eval PD",
-  "camelName": "evalPD",
+  "name": "Plugins for markdown-it",
+  "camelName": "pluginsForMarkdown-It",
   "steps": [
     {
       "name": "emitStartEvent",
@@ -45,48 +45,33 @@
       "internal": true
     },
     {
-      "code": "throw new Error(\"No name property found in script\");\n",
+      "code": "import markdownit from \"npm:markdown-it\";\n",
       "range": [
-        21,
-        23
+        15,
+        17
       ],
-      "name": "checkName",
-      "funcName": "checkName",
-      "inList": true,
-      "config": {
-        "not": [
-          "/name"
-        ]
-      }
-    },
-    {
-      "code": "input.url = `/pd/${input.name}/index.esm.js`;\n",
-      "range": [
-        32,
-        34
-      ],
-      "name": "generateUrl",
-      "funcName": "generateUrl",
+      "name": "Plugins for markdown-it",
+      "funcName": "pluginsForMarkdown-It",
       "inList": false
     },
     {
-      "code": "input.script = await import(input.url);\n",
+      "code": "const md = markdownit().use((md, options) => {\n    console.log({md, options})\n})\n$p.set(input, '/markdown.dirtyPlugin', md.render('# hello'))\n",
       "range": [
-        41,
-        43
+        24,
+        26
       ],
-      "name": "importScript",
-      "funcName": "importScript",
+      "name": "How do we make plugins anyway",
+      "funcName": "howDoWeMakePluginsAnyway",
       "inList": false
     },
     {
-      "code": "input.output = await input.script.pipe.process();\n",
+      "code": "const md = markdownit().use((md, options) => {\n    md.inline.ruler.push('wiki', state => {\n        console.log({state})\n    })\n    console.log('#2', {md, options})\n})\n$p.set(input, '/markdown.dirtyInlinePlugin', md.render(`# hello\nhow about now\n[wat](/wat)\n[[wikilink]]`))\n",
       "range": [
-        50,
-        52
+        51,
+        53
       ],
-      "name": "runScript",
-      "funcName": "runScript",
+      "name": "rulers to rule them all",
+      "funcName": "rulersToRuleThemAll",
       "inList": false
     },
     {

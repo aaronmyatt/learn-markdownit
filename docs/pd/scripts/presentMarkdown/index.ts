@@ -4,7 +4,7 @@ import $p from "jsr:@pd/pointers@0.1.1";
 false
 import rawPipe from "./index.json" with {type: "json"};
 import * as deps from "/deps.ts";
-import markdownit from "npm:markdown-it";
+
 
 export async function emitStartEvent (input, opts) {
     const event = new CustomEvent('pd:pipe:start', {detail: {input, opts}})
@@ -40,19 +40,32 @@ export async function persistInput (input, opts) {
       }
       
 }
-export async function basicUsage (input, opts) {
-    
-
-input.mdi = markdownit()
-$p.set(input, '/markdown/basics', input.mdi.render('# markdown-it rulezz!'))
+export async function determineScriptName (input, opts) {
+    input.url = input.url || new URL(window.location.href)
+input.name = input.url.pathname.split('/').filter(Boolean).filter(part => part !== 'learn-markdownit').find(Boolean) || 'index'
 
 }
-export async function renderInline (input, opts) {
-    $p.set(input, '/markdown/basicInline', input.mdi.renderInline('# markdown-it rulezz! __mdi__ *mdi*'))
+export async function fetchMarkdown (input, opts) {
+    const {markdown} = JSON.parse(localStorage.getItem('evalPipedown::'+input.name) || '{}')
+input.markdown = markdown
 
 }
-export async function anonymous50 (input, opts) {
-    input.mdi = Object.keys(input.mdi);
+export async function showDrawerButton (input, opts) {
+    document.querySelector('#htmldrawer').classList.remove('hidden')
+console.log(input)
+
+}
+export async function presentMarkdown (input, opts) {
+    for (const md in input.markdown) {
+    const markdownDiv = document.createElement('div')
+    markdownDiv.classList.add('prose')
+
+    markdownDiv.innerHTML = `<div class="mockup-window border border-base-400 bg-base-300">
+    <code>input.markdown.${md}</code>
+  <div class="prose p-5">${input.markdown[md]}</div>
+</div>`
+    document.querySelector('#htmldrawerbody').appendChild(markdownDiv)
+}
 
 }
 export async function persistOutput (input, opts) {
@@ -91,7 +104,7 @@ export async function emitEndEvent (input, opts) {
 }
 
 const funcSequence = [
-emitStartEvent, persistInput, basicUsage, renderInline, anonymous50, persistOutput, emitEndEvent
+emitStartEvent, persistInput, determineScriptName, fetchMarkdown, showDrawerButton, presentMarkdown, persistOutput, emitEndEvent
 ]
 const pipe = Pipe(funcSequence, rawPipe);
 const process = (input={}) => pipe.process(input);

@@ -216,6 +216,171 @@ function Pipe(funcs, opts) {
   return new pipeline_default(wrappedFuncs);
 }
 
+// .pd/scripts/presentOutput/index.json
+var presentOutput_default = {
+  fileName: "presentOutput",
+  dir: ".pd/scripts/presentOutput",
+  config: {
+    on: {},
+    emit: true,
+    persist: true,
+    exclude: [
+      "node_modules",
+      "dist",
+      "build",
+      "coverage",
+      "public",
+      "temp",
+      "docs",
+      "_site"
+    ],
+    build: [
+      "esm"
+    ]
+  },
+  name: "Present Pipedown Output",
+  camelName: "presentPipedownOutput",
+  steps: [
+    {
+      name: "emitStartEvent",
+      code: "const event = new CustomEvent('pd:pipe:start', {detail: {input, opts}})\n          dispatchEvent(event)",
+      funcName: "emitStartEvent",
+      inList: false,
+      range: [
+        0,
+        0
+      ],
+      internal: true
+    },
+    {
+      name: "persistInput",
+      code: "\n      const kvAvailable = typeof Deno !== 'undefined' && typeof Deno.openKv === 'function'\n      if(kvAvailable) {\n        try {\n          const db = await Deno.openKv()\n          const key = ['pd', 'input', opts.fileName]\n          try {\n              await db.set(key, JSON.stringify(input))\n          } catch (e) {\n            const safe = {\n              error: e.message,\n            }\n            for (const [k, v] of Object.entries(input)) {\n                safe[k] = typeof v;\n            }\n            await db.set(key, safe)\n          }\n        } catch (e) {\n            console.error(e)\n        }\n      } else {\n        const key = 'pd:input:' + opts.fileName \n        const inputJson = localStorage.getItem(key) || '[]'\n        const storedJson = JSON.parse(inputJson)\n        storedJson.push(JSON.stringify(input))\n        localStorage.setItem(key, JSON.stringify(storedJson))\n      }\n      ",
+      funcName: "persistInput",
+      inList: false,
+      range: [
+        0,
+        0
+      ],
+      internal: true
+    },
+    {
+      code: `async function evalPd() {
+    const url = new URL(window.location.href)
+    const name = url.pathname.split('/').filter(Boolean).filter(part => part !== 'learn-markdownit').find(Boolean) || 'index'
+    const output = await window._evalPd({name});
+    
+    const dialog = document.createElement('dialog')
+    dialog.classList.add('modal')
+    // escape magic: https://stackoverflow.com/questions/6234773/can-i-escape-html-special-chars-in-javascript
+    dialog.innerHTML = \`<div class="modal-box w-11/12 max-w-5xl">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">\u2715</button>
+      </form>
+      <div class="mockup-code mt-5">
+        <pre data-prefix="$"><code>pd run \${name}
+  \${JSON.stringify(output.output, null, '  ')
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;")}
+    </code></pre>
+      </div>
+    </div>\`
+    document.body.appendChild(dialog)
+    dialog.showModal();
+  }
+`,
+      range: [
+        9,
+        11
+      ],
+      name: "Present Pipedown Output",
+      funcName: "presentPipedownOutput",
+      inList: false
+    },
+    {
+      code: "input.url = input.url || new URL(window.location.href)\ninput.name = input.url.pathname.split('/').filter(Boolean).filter(part => part !== 'learn-markdownit').find(Boolean) || 'index'\n",
+      range: [
+        21,
+        23
+      ],
+      name: "determine script name",
+      funcName: "determineScriptName",
+      inList: false
+    },
+    {
+      code: "import evalPipedown from 'evalPipedown'\n\n// const pastOutput = localStorage.getItem('evalPipedown::'+input.name)\n// if(pastOutput){\n//     input.output = JSON.parse(pastOutput);\n//     return\n// }\n\nconst {output} = await evalPipedown.process({name: input.name});\nlocalStorage.setItem('evalPipedown::'+input.name, JSON.stringify(output))\ninput.output = output\n",
+      range: [
+        36,
+        38
+      ],
+      name: "evalPd",
+      funcName: "evalPd",
+      inList: false
+    },
+    {
+      code: `console.log(input);
+input.json = JSON.stringify(input.output, null, '  ')
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;")
+`,
+      range: [
+        45,
+        47
+      ],
+      name: "escapeOutput",
+      funcName: "escapeOutput",
+      inList: false
+    },
+    {
+      code: 'input.presentJSON = (json, name) => `<div class="modal-box w-11/12 max-w-5xl">\n      <form method="dialog">\n        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">\u2715</button>\n      </form>\n      <div class="mockup-code mt-5">\n        <pre data-prefix="$"><code>pd run ${name}.md\n  ${json}\n    </code></pre>\n      </div>\n    </div>`\n',
+      range: [
+        62,
+        64
+      ],
+      name: "presentation",
+      funcName: "presentation",
+      inList: false
+    },
+    {
+      code: "const el = document.querySelector(`[name=\"${input.name}\"]`)\nif(el){\n    el.innerHTML = input.presentJSON(input.json, input.name)\n    el.showModal()\n    return\n}\nconst dialog = document.createElement('dialog')\ndialog.setAttribute('name', input.name)\ndialog.classList.add('modal') // daisyUI\ndialog.innerHTML = input.presentJSON(input.json, input.name)\ndocument.body.appendChild(dialog)\ndialog.showModal();\n",
+      range: [
+        71,
+        73
+      ],
+      name: "render",
+      funcName: "render",
+      inList: false
+    },
+    {
+      name: "persistOutput",
+      code: "\n      const kvAvailable = typeof Deno !== 'undefined' && typeof Deno.openKv === 'function'\n      if(kvAvailable) {\n        try {\n          const db = await Deno.openKv()\n          const key = ['pd', 'output', opts.fileName]\n          try {\n              await db.set(key, JSON.stringify(input))\n          } catch (e) {\n            const safe = {\n              error: e.message,\n            }\n            for (const [k, v] of Object.entries(input)) {\n                safe[k] = typeof v;\n            }\n            await db.set(key, safe)\n          }\n        } catch (e) {\n            console.error(e)\n        }\n      } else {\n        const key = 'pd:output:' + opts.fileName \n        const inputJson = localStorage.getItem(key) || '[]'\n        const storedJson = JSON.parse(inputJson)\n        storedJson.push(JSON.stringify(input))\n        localStorage.setItem(key, JSON.stringify(storedJson))\n      }\n      ",
+      funcName: "persistOutput",
+      inList: false,
+      range: [
+        0,
+        0
+      ],
+      internal: true
+    },
+    {
+      name: "emitEndEvent",
+      code: "const event = new CustomEvent('pd:pipe:end', {detail: {input, opts}})\n          dispatchEvent(event)",
+      funcName: "emitEndEvent",
+      inList: false,
+      range: [
+        0,
+        0
+      ],
+      internal: true
+    }
+  ]
+};
+
 // .pd/scripts/evalPipedown/index.json
 var evalPipedown_default = {
   fileName: "evalPipedown",
@@ -421,20 +586,163 @@ var funcSequence = [
   emitEndEvent
 ];
 var pipe = Pipe(funcSequence, evalPipedown_default);
-var process = (input = {}) => pipe.process(input);
 pipe.json = evalPipedown_default;
 var evalPipedown_default2 = pipe;
+
+// .pd/scripts/presentOutput/index.ts
+async function emitStartEvent2(input, opts) {
+  const event = new CustomEvent("pd:pipe:start", { detail: { input, opts } });
+  dispatchEvent(event);
+}
+async function persistInput2(input, opts) {
+  const kvAvailable = typeof Deno !== "undefined" && typeof Deno.openKv === "function";
+  if (kvAvailable) {
+    try {
+      const db = await Deno.openKv();
+      const key = ["pd", "input", opts.fileName];
+      try {
+        await db.set(key, JSON.stringify(input));
+      } catch (e) {
+        const safe = {
+          error: e.message
+        };
+        for (const [k, v] of Object.entries(input)) {
+          safe[k] = typeof v;
+        }
+        await db.set(key, safe);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  } else {
+    const key = "pd:input:" + opts.fileName;
+    const inputJson = localStorage.getItem(key) || "[]";
+    const storedJson = JSON.parse(inputJson);
+    storedJson.push(JSON.stringify(input));
+    localStorage.setItem(key, JSON.stringify(storedJson));
+  }
+}
+async function presentPipedownOutput(input, opts) {
+  async function evalPd2() {
+    const url = new URL(window.location.href);
+    const name = url.pathname.split("/").filter(Boolean).filter((part) => part !== "learn-markdownit").find(Boolean) || "index";
+    const output = await window._evalPd({ name });
+    const dialog = document.createElement("dialog");
+    dialog.classList.add("modal");
+    dialog.innerHTML = `<div class="modal-box w-11/12 max-w-5xl">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">\u2715</button>
+      </form>
+      <div class="mockup-code mt-5">
+        <pre data-prefix="$"><code>pd run ${name}
+  ${JSON.stringify(output.output, null, "  ").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")}
+    </code></pre>
+      </div>
+    </div>`;
+    document.body.appendChild(dialog);
+    dialog.showModal();
+  }
+}
+async function determineScriptName(input, opts) {
+  input.url = input.url || new URL(window.location.href);
+  input.name = input.url.pathname.split("/").filter(Boolean).filter((part) => part !== "learn-markdownit").find(Boolean) || "index";
+}
+async function evalPd(input, opts) {
+  const { output } = await evalPipedown_default2.process({ name: input.name });
+  localStorage.setItem("evalPipedown::" + input.name, JSON.stringify(output));
+  input.output = output;
+}
+async function escapeOutput(input, opts) {
+  console.log(input);
+  input.json = JSON.stringify(input.output, null, "  ").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+async function presentation(input, opts) {
+  input.presentJSON = (json, name) => `<div class="modal-box w-11/12 max-w-5xl">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">\u2715</button>
+      </form>
+      <div class="mockup-code mt-5">
+        <pre data-prefix="$"><code>pd run ${name}.md
+  ${json}
+    </code></pre>
+      </div>
+    </div>`;
+}
+async function render(input, opts) {
+  const el = document.querySelector(`[name="${input.name}"]`);
+  if (el) {
+    el.innerHTML = input.presentJSON(input.json, input.name);
+    el.showModal();
+    return;
+  }
+  const dialog = document.createElement("dialog");
+  dialog.setAttribute("name", input.name);
+  dialog.classList.add("modal");
+  dialog.innerHTML = input.presentJSON(input.json, input.name);
+  document.body.appendChild(dialog);
+  dialog.showModal();
+}
+async function persistOutput2(input, opts) {
+  const kvAvailable = typeof Deno !== "undefined" && typeof Deno.openKv === "function";
+  if (kvAvailable) {
+    try {
+      const db = await Deno.openKv();
+      const key = ["pd", "output", opts.fileName];
+      try {
+        await db.set(key, JSON.stringify(input));
+      } catch (e) {
+        const safe = {
+          error: e.message
+        };
+        for (const [k, v] of Object.entries(input)) {
+          safe[k] = typeof v;
+        }
+        await db.set(key, safe);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  } else {
+    const key = "pd:output:" + opts.fileName;
+    const inputJson = localStorage.getItem(key) || "[]";
+    const storedJson = JSON.parse(inputJson);
+    storedJson.push(JSON.stringify(input));
+    localStorage.setItem(key, JSON.stringify(storedJson));
+  }
+}
+async function emitEndEvent2(input, opts) {
+  const event = new CustomEvent("pd:pipe:end", { detail: { input, opts } });
+  dispatchEvent(event);
+}
+var funcSequence2 = [
+  emitStartEvent2,
+  persistInput2,
+  presentPipedownOutput,
+  determineScriptName,
+  evalPd,
+  escapeOutput,
+  presentation,
+  render,
+  persistOutput2,
+  emitEndEvent2
+];
+var pipe2 = Pipe(funcSequence2, presentOutput_default);
+var process = (input = {}) => pipe2.process(input);
+pipe2.json = presentOutput_default;
+var presentOutput_default2 = pipe2;
 export {
-  checkName,
-  evalPipedown_default2 as default,
-  emitEndEvent,
-  emitStartEvent,
-  generateUrl,
-  importScript,
-  persistInput,
-  persistOutput,
-  pipe,
+  presentOutput_default2 as default,
+  determineScriptName,
+  emitEndEvent2 as emitEndEvent,
+  emitStartEvent2 as emitStartEvent,
+  escapeOutput,
+  evalPd,
+  persistInput2 as persistInput,
+  persistOutput2 as persistOutput,
+  pipe2 as pipe,
+  presentPipedownOutput,
+  presentation,
   process,
-  evalPipedown_default as rawPipe,
-  runScript
+  presentOutput_default as rawPipe,
+  render
 };

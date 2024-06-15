@@ -216,10 +216,10 @@ function Pipe(funcs, opts) {
   return new pipeline_default(wrappedFuncs);
 }
 
-// .pd/scripts/evalPipedown/index.json
-var evalPipedown_default = {
-  fileName: "evalPipedown",
-  dir: ".pd/scripts/evalPipedown",
+// .pd/config/index.json
+var config_default = {
+  fileName: "config",
+  dir: ".pd/config",
   config: {
     on: {},
     emit: true,
@@ -238,8 +238,8 @@ var evalPipedown_default = {
       "esm"
     ]
   },
-  name: "Eval PD",
-  camelName: "evalPD",
+  name: "Configuring markdown-it",
+  camelName: "configuringMarkdown-It",
   steps: [
     {
       name: "emitStartEvent",
@@ -264,48 +264,13 @@ var evalPipedown_default = {
       internal: true
     },
     {
-      code: 'throw new Error("No name property found in script");\n',
+      code: 'import markdownit from "npm:markdown-it";\n',
       range: [
-        21,
-        23
+        15,
+        17
       ],
-      name: "checkName",
-      funcName: "checkName",
-      inList: true,
-      config: {
-        not: [
-          "/name"
-        ]
-      }
-    },
-    {
-      code: "input.url = `/pd/${input.name}/index.esm.js`;\n",
-      range: [
-        32,
-        34
-      ],
-      name: "generateUrl",
-      funcName: "generateUrl",
-      inList: false
-    },
-    {
-      code: "input.script = await import(input.url);\n",
-      range: [
-        41,
-        43
-      ],
-      name: "importScript",
-      funcName: "importScript",
-      inList: false
-    },
-    {
-      code: "input.output = await input.script.pipe.process();\n",
-      range: [
-        50,
-        52
-      ],
-      name: "runScript",
-      funcName: "runScript",
+      name: "Configuring markdown-it",
+      funcName: "configuringMarkdown-It",
       inList: false
     },
     {
@@ -333,7 +298,7 @@ var evalPipedown_default = {
   ]
 };
 
-// .pd/scripts/evalPipedown/index.ts
+// .pd/config/index.ts
 async function emitStartEvent(input, opts) {
   const event = new CustomEvent("pd:pipe:start", { detail: { input, opts } });
   dispatchEvent(event);
@@ -366,17 +331,7 @@ async function persistInput(input, opts) {
     localStorage.setItem(key, JSON.stringify(storedJson));
   }
 }
-async function checkName(input, opts) {
-  throw new Error("No name property found in script");
-}
-async function generateUrl(input, opts) {
-  input.url = `/pd/${input.name}/index.esm.js`;
-}
-async function importScript(input, opts) {
-  input.script = await import(input.url);
-}
-async function runScript(input, opts) {
-  input.output = await input.script.pipe.process();
+async function configuringMarkdownIt(input, opts) {
 }
 async function persistOutput(input, opts) {
   const kvAvailable = typeof Deno !== "undefined" && typeof Deno.openKv === "function";
@@ -413,28 +368,22 @@ async function emitEndEvent(input, opts) {
 var funcSequence = [
   emitStartEvent,
   persistInput,
-  checkName,
-  generateUrl,
-  importScript,
-  runScript,
+  configuringMarkdownIt,
   persistOutput,
   emitEndEvent
 ];
-var pipe = Pipe(funcSequence, evalPipedown_default);
+var pipe = Pipe(funcSequence, config_default);
 var process = (input = {}) => pipe.process(input);
-pipe.json = evalPipedown_default;
-var evalPipedown_default2 = pipe;
+pipe.json = config_default;
+var config_default2 = pipe;
 export {
-  checkName,
-  evalPipedown_default2 as default,
+  configuringMarkdownIt,
+  config_default2 as default,
   emitEndEvent,
   emitStartEvent,
-  generateUrl,
-  importScript,
   persistInput,
   persistOutput,
   pipe,
   process,
-  evalPipedown_default as rawPipe,
-  runScript
+  config_default as rawPipe
 };

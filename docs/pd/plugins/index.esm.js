@@ -230,10 +230,10 @@ var setNew2 = (data, path) => {
 Object.defineProperty(import_npm_jsonpointer_5_02.default, "make", { value: setNew2, writable: false, configurable: false, enumerable: false });
 var mod_default2 = import_npm_jsonpointer_5_02.default;
 
-// .pd/index/index.json
-var index_default = {
-  fileName: "index",
-  dir: ".pd/index",
+// .pd/plugins/index.json
+var plugins_default = {
+  fileName: "plugins",
+  dir: ".pd/plugins",
   config: {
     on: {},
     emit: true,
@@ -252,8 +252,8 @@ var index_default = {
       "esm"
     ]
   },
-  name: "Learning markdown-it",
-  camelName: "learningMarkdown-It",
+  name: "Plugins for markdown-it",
+  camelName: "pluginsForMarkdown-It",
   steps: [
     {
       name: "emitStartEvent",
@@ -278,37 +278,33 @@ var index_default = {
       internal: true
     },
     {
-      code: `import markdownit from "npm:markdown-it";
-
-input.mdi = markdownit()
-$p.set(input, '/markdown/basics', input.mdi.render('# markdown-it rulezz!'))
-`,
+      code: 'import markdownit from "npm:markdown-it";\n',
       range: [
-        27,
-        29
+        15,
+        17
       ],
-      name: "basic usage",
-      funcName: "basicUsage",
+      name: "Plugins for markdown-it",
+      funcName: "pluginsForMarkdown-It",
       inList: false
     },
     {
-      code: "$p.set(input, '/markdown/basicInline', input.mdi.renderInline('# markdown-it rulezz! __mdi__ *mdi*'))\n",
+      code: "const md = markdownit().use((md, options) => {\n    console.log({md, options})\n})\n$p.set(input, '/markdown.dirtyPlugin', md.render('# hello'))\n",
       range: [
-        40,
-        42
+        24,
+        26
       ],
-      name: "render inline",
-      funcName: "renderInline",
+      name: "How do we make plugins anyway",
+      funcName: "howDoWeMakePluginsAnyway",
       inList: false
     },
     {
-      code: "input.mdi = Object.keys(input.mdi);\n",
+      code: "const md = markdownit().use((md, options) => {\n    md.inline.ruler.push('wiki', state => {\n        console.log({state})\n    })\n    console.log('#2', {md, options})\n})\n$p.set(input, '/markdown.dirtyInlinePlugin', md.render(`# hello\nhow about now\n[wat](/wat)\n[[wikilink]]`))\n",
       range: [
-        50,
-        52
+        51,
+        53
       ],
-      name: "anonymous50",
-      funcName: "anonymous50",
+      name: "rulers to rule them all",
+      funcName: "rulersToRuleThemAll",
       inList: false
     },
     {
@@ -5727,7 +5723,7 @@ MarkdownIt.prototype.renderInline = function(src, env) {
 };
 var lib_default = MarkdownIt;
 
-// .pd/index/index.ts
+// .pd/plugins/index.ts
 async function emitStartEvent(input, opts) {
   const event = new CustomEvent("pd:pipe:start", { detail: { input, opts } });
   dispatchEvent(event);
@@ -5760,15 +5756,25 @@ async function persistInput(input, opts) {
     localStorage.setItem(key, JSON.stringify(storedJson));
   }
 }
-async function basicUsage(input, opts) {
-  input.mdi = lib_default();
-  mod_default2.set(input, "/markdown/basics", input.mdi.render("# markdown-it rulezz!"));
+async function pluginsForMarkdownIt(input, opts) {
 }
-async function renderInline(input, opts) {
-  mod_default2.set(input, "/markdown/basicInline", input.mdi.renderInline("# markdown-it rulezz! __mdi__ *mdi*"));
+async function howDoWeMakePluginsAnyway(input, opts) {
+  const md = lib_default().use((md2, options) => {
+    console.log({ md: md2, options });
+  });
+  mod_default2.set(input, "/markdown.dirtyPlugin", md.render("# hello"));
 }
-async function anonymous50(input, opts) {
-  input.mdi = Object.keys(input.mdi);
+async function rulersToRuleThemAll(input, opts) {
+  const md = lib_default().use((md2, options) => {
+    md2.inline.ruler.push("wiki", (state) => {
+      console.log({ state });
+    });
+    console.log("#2", { md: md2, options });
+  });
+  mod_default2.set(input, "/markdown.dirtyInlinePlugin", md.render(`# hello
+how about now
+[wat](/wat)
+[[wikilink]]`));
 }
 async function persistOutput(input, opts) {
   const kvAvailable = typeof Deno !== "undefined" && typeof Deno.openKv === "function";
@@ -5805,26 +5811,26 @@ async function emitEndEvent(input, opts) {
 var funcSequence = [
   emitStartEvent,
   persistInput,
-  basicUsage,
-  renderInline,
-  anonymous50,
+  pluginsForMarkdownIt,
+  howDoWeMakePluginsAnyway,
+  rulersToRuleThemAll,
   persistOutput,
   emitEndEvent
 ];
-var pipe = Pipe(funcSequence, index_default);
+var pipe = Pipe(funcSequence, plugins_default);
 var process = (input = {}) => pipe.process(input);
-pipe.json = index_default;
-var index_default2 = pipe;
+pipe.json = plugins_default;
+var plugins_default2 = pipe;
 export {
-  anonymous50,
-  basicUsage,
-  index_default2 as default,
+  plugins_default2 as default,
   emitEndEvent,
   emitStartEvent,
+  howDoWeMakePluginsAnyway,
   persistInput,
   persistOutput,
   pipe,
+  pluginsForMarkdownIt,
   process,
-  index_default as rawPipe,
-  renderInline
+  plugins_default as rawPipe,
+  rulersToRuleThemAll
 };

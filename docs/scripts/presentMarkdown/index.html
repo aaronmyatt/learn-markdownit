@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html><head></head><body><h1>Present Markdown</h1>
+<p>We will be stuffing a bunch of small markdown examples in localStorage. Let's fetch them and present them in a drawer.</p>
+<h2>determine script name</h2>
+<p>Try extracting the name of the pipedown script from the URL. We are assuming a markdown document is being presented as HTML so the corresponding browser friendly script will be in the ./.pd directory. We're just extracting whatever is after the basePath.</p>
+<p>TODO: make the basePath a configurable parameter.</p>
+<pre><code class="language-ts hljs language-typescript">input.<span class="hljs-property">url</span> = input.<span class="hljs-property">url</span> || <span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(<span class="hljs-variable language_">window</span>.<span class="hljs-property">location</span>.<span class="hljs-property">href</span>)
+input.<span class="hljs-property">name</span> = input.<span class="hljs-property">url</span>.<span class="hljs-property">pathname</span>.<span class="hljs-title function_">split</span>(<span class="hljs-string">'/'</span>).<span class="hljs-title function_">filter</span>(<span class="hljs-title class_">Boolean</span>).<span class="hljs-title function_">filter</span>(<span class="hljs-function"><span class="hljs-params">part</span> =&gt;</span> part !== <span class="hljs-string">'learn-markdownit'</span>).<span class="hljs-title function_">find</span>(<span class="hljs-title class_">Boolean</span>) || <span class="hljs-string">'index'</span>
+</code></pre>
+<h2>fetchMarkdown</h2>
+<p>[<a href="evalPipedown.md" title="Eval PD">evalPipedown</a>] will drop what it evaluates in localStorage. We will fetch it from there.</p>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">const</span> {markdown} = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">parse</span>(<span class="hljs-variable language_">localStorage</span>.<span class="hljs-title function_">getItem</span>(<span class="hljs-string">'evalPipedown::'</span>+input.<span class="hljs-property">name</span>) || <span class="hljs-string">'{}'</span>)
+input.<span class="hljs-property">markdown</span> = markdown
+</code></pre>
+<h2>showDrawerButton</h2>
+<p>We will add a button to the page to show the drawer, if there's anything to show</p>
+<ul>
+<li>when: /markdown<pre><code class="language-ts hljs language-typescript"><span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">'#htmldrawer'</span>).<span class="hljs-property">classList</span>.<span class="hljs-title function_">remove</span>(<span class="hljs-string">'hidden'</span>)
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(input)
+</code></pre>
+</li>
+</ul>
+<h2>presentMarkdown</h2>
+<p>I am conflicted about whether to show the markdown-it output in an iframe, so be safe, or just render it in a div since I have control over the output and it's not user generated content.</p>
+<ul>
+<li>when: /markdown<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> md <span class="hljs-keyword">in</span> input.<span class="hljs-property">markdown</span>) {
+    <span class="hljs-keyword">const</span> markdownDiv = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">'div'</span>)
+    markdownDiv.<span class="hljs-property">classList</span>.<span class="hljs-title function_">add</span>(<span class="hljs-string">'prose'</span>)
+
+    markdownDiv.<span class="hljs-property">innerHTML</span> = <span class="hljs-string">`&lt;div class="mockup-window border border-base-400 bg-base-300"&gt;
+    &lt;code&gt;input.markdown.<span class="hljs-subst">${md}</span>&lt;/code&gt;
+  &lt;div class="prose p-5"&gt;<span class="hljs-subst">${input.markdown[md]}</span>&lt;/div&gt;
+&lt;/div&gt;`</span>
+    <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">'#htmldrawerbody'</span>).<span class="hljs-title function_">appendChild</span>(markdownDiv)
+}
+</code></pre>
+</li>
+</ul>
+<pre><code class="language-json hljs"><span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">"build"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">"esm"</span><span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<p>const markdownDiv = document.createElement('div')</p>
+<pre><code>
+```json
+{
+    "build": ["esm"]
+}
+</code></pre>
+</body></html>
