@@ -6,9 +6,16 @@ import postcss from "lume/plugins/postcss.ts";
 import typography from "npm:@tailwindcss/typography";
 import daisyui from "npm:daisyui";
 
-const site = lume();
+const site = lume({
+    
+}, {
+    // markdown: {
+    //     plugins: [wikilinks]
+    // }
+});
 
 const prodOrNot = Deno.env.get('PROD')
+site.data("prod", prodOrNot);
 site.data("basePath", prodOrNot ? "https://aaronmyatt.github.io/learn-markdownit/" : "http://localhost:3000/");
 
 site.use(code_highlight({
@@ -23,5 +30,6 @@ site.use(tailwindcss({
 }));
 site.use(postcss());
 site.copy('.pd', 'pd');
+site.copy('img');
 
 export default site;
