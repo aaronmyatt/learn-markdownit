@@ -21,7 +21,8 @@ import { relative, join, parse } from "jsr:@std/path";
 {
     "mdi": "MarkdownIt instance",
     "options": "Merged Plugin+Markdown-it options",
-    "basePath": "Path to be prepended to the link hrefs"
+    "basePath": "Path to be prepended to the link hrefs",
+    "relativePaths": "Whether to use relative paths, to play nice with <base> tags",
 }
 ```
 - Options:
@@ -71,6 +72,11 @@ input.mdi.renderer.rules.wikimatch = (tokens, idx) => {
 
     let path = firstFile ? relative(Deno.cwd(), firstFile.path) : tokens[idx].meta.match[1];
 
+    if(input.options.relativePaths) {
+    } else {
+        path = join('/', path)
+    }
+    
     if (input.options.basePath.length > 0)
         path = join(input.options.basePath, path)
 
