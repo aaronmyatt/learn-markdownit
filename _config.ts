@@ -5,13 +5,14 @@ import tailwindcss from "lume/plugins/tailwindcss.ts";
 import postcss from "lume/plugins/postcss.ts";
 import typography from "npm:@tailwindcss/typography";
 import daisyui from "npm:daisyui";
+import {Plugin} from "./wikiMatchPlugin.ts";
 
 const site = lume({
     
 }, {
-    // markdown: {
-    //     plugins: [wikilinks]
-    // }
+    markdown: {
+        plugins: [Plugin({stripExtension:true,regex:false})]
+    }
 });
 
 const prodOrNot = Deno.env.get('PROD')

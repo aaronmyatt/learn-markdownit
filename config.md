@@ -3,6 +3,7 @@ layout: _includes/layout.pug
 name: config
 tags: 
     - learn
+draft: true
 ---
 # Configuring markdown-it
 
