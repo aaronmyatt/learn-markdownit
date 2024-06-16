@@ -3,7 +3,7 @@
 <p>This wont work in the browser sadly, it relies on <a href="https://deno.land/manual/runtime/file_system">Deno's filesystem</a> API.</p>
 </blockquote>
 <h1>Wikilink Plugin</h1>
-<p>Based on learnings from <a href="https:/aaronmyatt.github.io/learn-markdownit/regexPluginResearch">regexPluginResearch</a></p>
+<p>Based on learnings from <a href="regexPluginResearch">regexPluginResearch</a></p>
 <pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">import</span> markdownit <span class="hljs-keyword">from</span> <span class="hljs-string">"npm:markdown-it"</span>;
 <span class="hljs-keyword">import</span> { walkSync } <span class="hljs-keyword">from</span> <span class="hljs-string">"jsr:@std/fs"</span>;
 <span class="hljs-keyword">import</span> { relative, join, parse } <span class="hljs-keyword">from</span> <span class="hljs-string">"jsr:@std/path"</span>;
@@ -12,7 +12,8 @@
 <pre><code class="language-json hljs"><span class="hljs-punctuation">{</span>
     <span class="hljs-attr">"mdi"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"MarkdownIt instance"</span><span class="hljs-punctuation">,</span>
     <span class="hljs-attr">"options"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"Merged Plugin+Markdown-it options"</span><span class="hljs-punctuation">,</span>
-    <span class="hljs-attr">"basePath"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"Path to be prepended to the link hrefs"</span>
+    <span class="hljs-attr">"basePath"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"Path to be prepended to the link hrefs"</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">"relativePaths"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"Whether to use relative paths, to play nice with &lt;base&gt; tags"</span><span class="hljs-punctuation">,</span>
 <span class="hljs-punctuation">}</span>
 </code></pre>
 <ul>
@@ -66,6 +67,11 @@
 
     <span class="hljs-keyword">let</span> path = firstFile ? <span class="hljs-title function_">relative</span>(<span class="hljs-title class_">Deno</span>.<span class="hljs-title function_">cwd</span>(), firstFile.<span class="hljs-property">path</span>) : tokens[idx].<span class="hljs-property">meta</span>.<span class="hljs-property">match</span>[<span class="hljs-number">1</span>];
 
+    <span class="hljs-keyword">if</span>(input.<span class="hljs-property">options</span>.<span class="hljs-property">relativePaths</span>) {
+    } <span class="hljs-keyword">else</span> {
+        path = <span class="hljs-title function_">join</span>(<span class="hljs-string">'/'</span>, path)
+    }
+    
     <span class="hljs-keyword">if</span> (input.<span class="hljs-property">options</span>.<span class="hljs-property">basePath</span>.<span class="hljs-property">length</span> &gt; <span class="hljs-number">0</span>)
         path = <span class="hljs-title function_">join</span>(input.<span class="hljs-property">options</span>.<span class="hljs-property">basePath</span>, path)
 

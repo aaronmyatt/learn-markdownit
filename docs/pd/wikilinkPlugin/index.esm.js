@@ -284,7 +284,7 @@ var wikilinkPlugin_default = {
       inList: false
     },
     {
-      code: "input.mdi.renderer.rules.wikimatch = (tokens, idx) => {\n    let firstFile: PathInfo | undefined;\n    try {\n        for (const file of walkSync(Deno.cwd(), { skip: [/\\.pd/, /_site/]})) {\n            if (file.path.includes(tokens[idx].meta.match[1])) {\n                firstFile = file;\n                break;\n            }\n        }\n    } catch (e) {\n        // wont work in the browser\n        console.error(e)\n    }\n\n    let path = firstFile ? relative(Deno.cwd(), firstFile.path) : tokens[idx].meta.match[1];\n\n    if (input.options.basePath.length > 0)\n        path = join(input.options.basePath, path)\n\n    if (input.options.stripExtension)\n        path = path.replace(parse(path).ext, '')\n\n    return `<a href=\"${path}\">${parse(path).name}</a>`\n}\n",
+      code: "input.mdi.renderer.rules.wikimatch = (tokens, idx) => {\n    let firstFile: PathInfo | undefined;\n    try {\n        for (const file of walkSync(Deno.cwd(), { skip: [/\\.pd/, /_site/]})) {\n            if (file.path.includes(tokens[idx].meta.match[1])) {\n                firstFile = file;\n                break;\n            }\n        }\n    } catch (e) {\n        // wont work in the browser\n        console.error(e)\n    }\n\n    let path = firstFile ? relative(Deno.cwd(), firstFile.path) : tokens[idx].meta.match[1];\n\n    if(input.options.relativePaths) {\n    } else {\n        path = join('/', path)\n    }\n    \n    if (input.options.basePath.length > 0)\n        path = join(input.options.basePath, path)\n\n    if (input.options.stripExtension)\n        path = path.replace(parse(path).ext, '')\n\n    return `<a href=\"${path}\">${parse(path).name}</a>`\n}\n",
       range: [
         87,
         89
@@ -1666,6 +1666,10 @@ async function renderRuler(input, opts) {
       console.error(e);
     }
     let path = firstFile ? relative3(Deno.cwd(), firstFile.path) : tokens[idx].meta.match[1];
+    if (input.options.relativePaths) {
+    } else {
+      path = join6("/", path);
+    }
     if (input.options.basePath.length > 0)
       path = join6(input.options.basePath, path);
     if (input.options.stripExtension)

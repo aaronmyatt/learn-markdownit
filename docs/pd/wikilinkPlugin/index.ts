@@ -82,6 +82,11 @@ export async function renderRuler (input, opts) {
 
     let path = firstFile ? relative(Deno.cwd(), firstFile.path) : tokens[idx].meta.match[1];
 
+    if(input.options.relativePaths) {
+    } else {
+        path = join('/', path)
+    }
+    
     if (input.options.basePath.length > 0)
         path = join(input.options.basePath, path)
 

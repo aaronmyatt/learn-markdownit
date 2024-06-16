@@ -36,7 +36,7 @@
 input.<span class="hljs-property">name</span> = input.<span class="hljs-property">url</span>.<span class="hljs-property">pathname</span>.<span class="hljs-title function_">split</span>(<span class="hljs-string">'/'</span>).<span class="hljs-title function_">filter</span>(<span class="hljs-title class_">Boolean</span>).<span class="hljs-title function_">filter</span>(<span class="hljs-function"><span class="hljs-params">part</span> =&gt;</span> part !== <span class="hljs-string">'learn-markdownit'</span>).<span class="hljs-title function_">find</span>(<span class="hljs-title class_">Boolean</span>) || <span class="hljs-string">'index'</span>
 </code></pre>
 <h2>evalPd</h2>
-<p>Use <a href="https:/aaronmyatt.github.io/learn-markdownit/scripts/evalPipedown">evalPipedown</a> to evaluate the script. Cache and fetch from Localstorage if available.</p>
+<p>Use <a href="scripts/evalPipedown">evalPipedown</a> to evaluate the script. Cache and fetch from Localstorage if available.</p>
 <pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">import</span> evalPipedown <span class="hljs-keyword">from</span> <span class="hljs-string">'evalPipedown'</span>
 
 <span class="hljs-comment">// const pastOutput = localStorage.getItem('evalPipedown::'+input.name)</span>
