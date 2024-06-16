@@ -6,6 +6,11 @@ tags:
 ---
 # Learning markdown-it
 
+### Learn more!
+- [[plugins]]
+- [[regexPluginResearch]]
+- [[wikilinkPlugin]]
+
 ## basic usage
 Straight from the [repo](https://github.com/markdown-it/markdown-it).
 Import the library, instantiate, render some markdown!
@@ -18,8 +23,7 @@ $p.set(input, '/markdown/basics', input.mdi.render('# markdown-it rulezz!'))
 
 ## render inline
 Under what circumstances would one want to render markdown without line breaks?
-To render the inline syntax like italics and bold? Maybe offer your user
-only a subset of the syntax in a text box/wysiwyg style editor? 
+To render the inline syntax like italics and bold? Maybe offer your user only a subset of the syntax in a text box/wysiwyg style editor? 
 ```ts
 $p.set(input, '/markdown/basicInline', input.mdi.renderInline('# markdown-it rulezz! __mdi__ *mdi*'))
 ```
