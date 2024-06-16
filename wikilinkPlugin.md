@@ -13,14 +13,15 @@ Based on learnings from [[regexPluginResearch]]
 ```ts
 import markdownit from "npm:markdown-it";
 import { walkSync } from "jsr:@std/fs";
-import { relative } from "jsr:@std/path";
+import { relative, join, parse } from "jsr:@std/path";
 ```
 
 ## Inputs
 ```json skip
 {
     "mdi": "MarkdownIt instance",
-    "options": "Merged Plugin+Markdown-it options"
+    "options": "Merged Plugin+Markdown-it options",
+    "basePath": "Path to be prepended to the link hrefs"
 }
 ```
 - Options:
@@ -55,7 +56,7 @@ input.mdi.inline.ruler.push('wikimatch', (state, silent) => {
 - If not found, just renders the link as is
 ```ts
 input.mdi.renderer.rules.wikimatch = (tokens, idx) => {
-    let firstFile: FileInfo | undefined;
+    let firstFile: PathInfo | undefined;
     try {
         for (const file of walkSync(Deno.cwd(), { skip: [/\.pd/, /_site/]})) {
             if (file.path.includes(tokens[idx].meta.match[1])) {
@@ -70,11 +71,13 @@ input.mdi.renderer.rules.wikimatch = (tokens, idx) => {
 
     let path = firstFile ? relative(Deno.cwd(), firstFile.path) : tokens[idx].meta.match[1];
 
-    if (input.options.stripExtension) {
-        path = path.replace(/\.[^.]+$/, '')
-    }
+    if (input.options.basePath.length > 0)
+        path = join(input.options.basePath, path)
 
-    return `<a href="/${path}">${path}</a>`
+    if (input.options.stripExtension)
+        path = path.replace(parse(path).ext, '')
+
+    return `<a href="${path}">${parse(path).name}</a>`
 }
 ```
 

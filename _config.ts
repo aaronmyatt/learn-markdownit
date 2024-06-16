@@ -7,17 +7,18 @@ import typography from "npm:@tailwindcss/typography";
 import daisyui from "npm:daisyui";
 import {Plugin} from "./wikiMatchPlugin.ts";
 
+const prodOrNot = Deno.env.get('PROD')
+const basePath = prodOrNot ? "https://aaronmyatt.github.io/learn-markdownit/" : "http://localhost:3000/"
+
 const site = lume({
-    
 }, {
     markdown: {
-        plugins: [Plugin({stripExtension:true,regex:false})]
+        plugins: [Plugin({stripExtension:true,regex:false,basePath})]
     }
 });
 
-const prodOrNot = Deno.env.get('PROD')
 site.data("prod", prodOrNot);
-site.data("basePath", prodOrNot ? "https://aaronmyatt.github.io/learn-markdownit/" : "http://localhost:3000/");
+site.data("basePath", basePath);
 
 site.use(code_highlight({
     extensions: [".html", ".js", ".ts", ".md"],
