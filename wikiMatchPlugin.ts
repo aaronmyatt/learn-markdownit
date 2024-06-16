@@ -1,4 +1,4 @@
-import pipe from "./.pd/regexPlugin/index.esm.js"
+import pipe from "./.pd/wikilinkPlugin/index.esm.js"
 
 export const Plugin = (userOptions={
     stripExtension: false,
