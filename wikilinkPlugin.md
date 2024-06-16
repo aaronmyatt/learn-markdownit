@@ -5,7 +5,7 @@ tags:
     - learn
 ---
 
-> This wont work in the browser sadly, it relies on [Deno's filesystem](https://deno.land/manual/runtime/file_system) API.
+> This wont work in the browser sadly, it relies on [Deno's filesystem](https://deno.land/api@v1.44.2?unstable=true&s=Deno.lstat) API.
 
 # Wikilink Plugin
 Based on learnings from [[regexPluginResearch]]
@@ -76,7 +76,7 @@ input.mdi.renderer.rules.wikimatch = (tokens, idx) => {
     } else {
         path = join('/', path)
     }
-    
+
     if (input.options.basePath.length > 0)
         path = join(input.options.basePath, path)
 
