@@ -6,7 +6,7 @@ import rawPipe from "./index.json" with {type: "json"};
 import * as deps from "/deps.ts";
 import markdownit from "npm:markdown-it";
 import { walkSync } from "jsr:@std/fs";
-import { relative } from "jsr:@std/path";
+import { relative, join, parse } from "jsr:@std/path";
 
 export async function emitStartEvent (input, opts) {
     const event = new CustomEvent('pd:pipe:start', {detail: {input, opts}})
@@ -67,7 +67,7 @@ export async function inlineRuler (input, opts) {
 }
 export async function renderRuler (input, opts) {
     input.mdi.renderer.rules.wikimatch = (tokens, idx) => {
-    let firstFile: FileInfo | undefined;
+    let firstFile: PathInfo | undefined;
     try {
         for (const file of walkSync(Deno.cwd(), { skip: [/\.pd/, /_site/]})) {
             if (file.path.includes(tokens[idx].meta.match[1])) {
@@ -82,11 +82,13 @@ export async function renderRuler (input, opts) {
 
     let path = firstFile ? relative(Deno.cwd(), firstFile.path) : tokens[idx].meta.match[1];
 
-    if (input.options.stripExtension) {
-        path = path.replace(/\.[^.]+$/, '')
-    }
+    if (input.options.basePath.length > 0)
+        path = join(input.options.basePath, path)
 
-    return `<a href="/${path}">${path}</a>`
+    if (input.options.stripExtension)
+        path = path.replace(parse(path).ext, '')
+
+    return `<a href="${path}">${parse(path).name}</a>`
 }
 
 }

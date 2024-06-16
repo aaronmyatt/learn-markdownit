@@ -264,7 +264,7 @@ var wikilinkPlugin_default = {
       internal: true
     },
     {
-      code: 'import markdownit from "npm:markdown-it";\nimport { walkSync } from "jsr:@std/fs";\nimport { relative } from "jsr:@std/path";\n',
+      code: 'import markdownit from "npm:markdown-it";\nimport { walkSync } from "jsr:@std/fs";\nimport { relative, join, parse } from "jsr:@std/path";\n',
       range: [
         32,
         34
@@ -284,7 +284,7 @@ var wikilinkPlugin_default = {
       inList: false
     },
     {
-      code: "input.mdi.renderer.rules.wikimatch = (tokens, idx) => {\n    let firstFile: FileInfo | undefined;\n    try {\n        for (const file of walkSync(Deno.cwd(), { skip: [/\\.pd/, /_site/]})) {\n            if (file.path.includes(tokens[idx].meta.match[1])) {\n                firstFile = file;\n                break;\n            }\n        }\n    } catch (e) {\n        // wont work in the browser\n        console.error(e)\n    }\n\n    let path = firstFile ? relative(Deno.cwd(), firstFile.path) : tokens[idx].meta.match[1];\n\n    if (input.options.stripExtension) {\n        path = path.replace(/\\.[^.]+$/, '')\n    }\n\n    return `<a href=\"/${path}\">${path}</a>`\n}\n",
+      code: "input.mdi.renderer.rules.wikimatch = (tokens, idx) => {\n    let firstFile: PathInfo | undefined;\n    try {\n        for (const file of walkSync(Deno.cwd(), { skip: [/\\.pd/, /_site/]})) {\n            if (file.path.includes(tokens[idx].meta.match[1])) {\n                firstFile = file;\n                break;\n            }\n        }\n    } catch (e) {\n        // wont work in the browser\n        console.error(e)\n    }\n\n    let path = firstFile ? relative(Deno.cwd(), firstFile.path) : tokens[idx].meta.match[1];\n\n    if (input.options.basePath.length > 0)\n        path = join(input.options.basePath, path)\n\n    if (input.options.stripExtension)\n        path = path.replace(parse(path).ext, '')\n\n    return `<a href=\"${path}\">${parse(path).name}</a>`\n}\n",
       range: [
         87,
         89
@@ -855,12 +855,60 @@ var CHAR_FORWARD_SLASH2 = 47;
 var CHAR_BACKWARD_SLASH2 = 92;
 var CHAR_COLON2 = 58;
 
+// https://jsr.io/@std/path/0.225.2/_common/strip_trailing_separators.ts
+function stripTrailingSeparators2(segment, isSep) {
+  if (segment.length <= 1) {
+    return segment;
+  }
+  let end = segment.length;
+  for (let i = segment.length - 1; i > 0; i--) {
+    if (isSep(segment.charCodeAt(i))) {
+      end = i;
+    } else {
+      break;
+    }
+  }
+  return segment.slice(0, end);
+}
+
 // https://jsr.io/@std/path/0.225.2/windows/_util.ts
 function isPathSeparator2(code) {
   return code === CHAR_FORWARD_SLASH2 || code === CHAR_BACKWARD_SLASH2;
 }
 function isWindowsDeviceRoot2(code) {
   return code >= CHAR_LOWERCASE_A2 && code <= CHAR_LOWERCASE_Z2 || code >= CHAR_UPPERCASE_A2 && code <= CHAR_UPPERCASE_Z2;
+}
+
+// https://jsr.io/@std/assert/0.226.0/assertion_error.ts
+var AssertionError = class extends Error {
+  /** Constructs a new instance.
+   *
+   * @example Usage
+   * ```ts no-eval
+   * import { AssertionError } from "@std/assert/assertion-error";
+   *
+   * throw new AssertionError("Assertion failed");
+   * ```
+   *
+   * @param message The error message.
+   */
+  constructor(message) {
+    super(message);
+    this.name = "AssertionError";
+  }
+};
+
+// https://jsr.io/@std/assert/0.226.0/assert.ts
+function assert(expr, msg = "") {
+  if (!expr) {
+    throw new AssertionError(msg);
+  }
+}
+
+// https://jsr.io/@std/path/0.225.2/_common/normalize.ts
+function assertArg7(path) {
+  assertPath2(path);
+  if (path.length === 0) return ".";
 }
 
 // https://jsr.io/@std/path/0.225.2/_common/normalize_string.ts
@@ -917,6 +965,238 @@ function normalizeString2(path, allowAboveRoot, separator, isPathSeparator3) {
     }
   }
   return res;
+}
+
+// https://jsr.io/@std/path/0.225.2/windows/normalize.ts
+function normalize4(path) {
+  assertArg7(path);
+  const len = path.length;
+  let rootEnd = 0;
+  let device;
+  let isAbsolute6 = false;
+  const code = path.charCodeAt(0);
+  if (len > 1) {
+    if (isPathSeparator2(code)) {
+      isAbsolute6 = true;
+      if (isPathSeparator2(path.charCodeAt(1))) {
+        let j = 2;
+        let last = j;
+        for (; j < len; ++j) {
+          if (isPathSeparator2(path.charCodeAt(j))) break;
+        }
+        if (j < len && j !== last) {
+          const firstPart = path.slice(last, j);
+          last = j;
+          for (; j < len; ++j) {
+            if (!isPathSeparator2(path.charCodeAt(j))) break;
+          }
+          if (j < len && j !== last) {
+            last = j;
+            for (; j < len; ++j) {
+              if (isPathSeparator2(path.charCodeAt(j))) break;
+            }
+            if (j === len) {
+              return `\\\\${firstPart}\\${path.slice(last)}\\`;
+            } else if (j !== last) {
+              device = `\\\\${firstPart}\\${path.slice(last, j)}`;
+              rootEnd = j;
+            }
+          }
+        }
+      } else {
+        rootEnd = 1;
+      }
+    } else if (isWindowsDeviceRoot2(code)) {
+      if (path.charCodeAt(1) === CHAR_COLON2) {
+        device = path.slice(0, 2);
+        rootEnd = 2;
+        if (len > 2) {
+          if (isPathSeparator2(path.charCodeAt(2))) {
+            isAbsolute6 = true;
+            rootEnd = 3;
+          }
+        }
+      }
+    }
+  } else if (isPathSeparator2(code)) {
+    return "\\";
+  }
+  let tail;
+  if (rootEnd < len) {
+    tail = normalizeString2(
+      path.slice(rootEnd),
+      !isAbsolute6,
+      "\\",
+      isPathSeparator2
+    );
+  } else {
+    tail = "";
+  }
+  if (tail.length === 0 && !isAbsolute6) tail = ".";
+  if (tail.length > 0 && isPathSeparator2(path.charCodeAt(len - 1))) {
+    tail += "\\";
+  }
+  if (device === void 0) {
+    if (isAbsolute6) {
+      if (tail.length > 0) return `\\${tail}`;
+      else return "\\";
+    } else if (tail.length > 0) {
+      return tail;
+    } else {
+      return "";
+    }
+  } else if (isAbsolute6) {
+    if (tail.length > 0) return `${device}\\${tail}`;
+    else return `${device}\\`;
+  } else if (tail.length > 0) {
+    return device + tail;
+  } else {
+    return device;
+  }
+}
+
+// https://jsr.io/@std/path/0.225.2/windows/join.ts
+function join4(...paths) {
+  if (paths.length === 0) return ".";
+  let joined;
+  let firstPart = null;
+  for (let i = 0; i < paths.length; ++i) {
+    const path = paths[i];
+    assertPath2(path);
+    if (path.length > 0) {
+      if (joined === void 0) joined = firstPart = path;
+      else joined += `\\${path}`;
+    }
+  }
+  if (joined === void 0) return ".";
+  let needsReplace = true;
+  let slashCount = 0;
+  assert(firstPart !== null);
+  if (isPathSeparator2(firstPart.charCodeAt(0))) {
+    ++slashCount;
+    const firstLen = firstPart.length;
+    if (firstLen > 1) {
+      if (isPathSeparator2(firstPart.charCodeAt(1))) {
+        ++slashCount;
+        if (firstLen > 2) {
+          if (isPathSeparator2(firstPart.charCodeAt(2))) ++slashCount;
+          else {
+            needsReplace = false;
+          }
+        }
+      }
+    }
+  }
+  if (needsReplace) {
+    for (; slashCount < joined.length; ++slashCount) {
+      if (!isPathSeparator2(joined.charCodeAt(slashCount))) break;
+    }
+    if (slashCount >= 2) joined = `\\${joined.slice(slashCount)}`;
+  }
+  return normalize4(joined);
+}
+
+// https://jsr.io/@std/path/0.225.2/windows/parse.ts
+function parse(path) {
+  assertPath2(path);
+  const ret = { root: "", dir: "", base: "", ext: "", name: "" };
+  const len = path.length;
+  if (len === 0) return ret;
+  let rootEnd = 0;
+  let code = path.charCodeAt(0);
+  if (len > 1) {
+    if (isPathSeparator2(code)) {
+      rootEnd = 1;
+      if (isPathSeparator2(path.charCodeAt(1))) {
+        let j = 2;
+        let last = j;
+        for (; j < len; ++j) {
+          if (isPathSeparator2(path.charCodeAt(j))) break;
+        }
+        if (j < len && j !== last) {
+          last = j;
+          for (; j < len; ++j) {
+            if (!isPathSeparator2(path.charCodeAt(j))) break;
+          }
+          if (j < len && j !== last) {
+            last = j;
+            for (; j < len; ++j) {
+              if (isPathSeparator2(path.charCodeAt(j))) break;
+            }
+            if (j === len) {
+              rootEnd = j;
+            } else if (j !== last) {
+              rootEnd = j + 1;
+            }
+          }
+        }
+      }
+    } else if (isWindowsDeviceRoot2(code)) {
+      if (path.charCodeAt(1) === CHAR_COLON2) {
+        rootEnd = 2;
+        if (len > 2) {
+          if (isPathSeparator2(path.charCodeAt(2))) {
+            if (len === 3) {
+              ret.root = ret.dir = path;
+              ret.base = "\\";
+              return ret;
+            }
+            rootEnd = 3;
+          }
+        } else {
+          ret.root = ret.dir = path;
+          return ret;
+        }
+      }
+    }
+  } else if (isPathSeparator2(code)) {
+    ret.root = ret.dir = path;
+    ret.base = "\\";
+    return ret;
+  }
+  if (rootEnd > 0) ret.root = path.slice(0, rootEnd);
+  let startDot = -1;
+  let startPart = rootEnd;
+  let end = -1;
+  let matchedSlash = true;
+  let i = path.length - 1;
+  let preDotState = 0;
+  for (; i >= rootEnd; --i) {
+    code = path.charCodeAt(i);
+    if (isPathSeparator2(code)) {
+      if (!matchedSlash) {
+        startPart = i + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i + 1;
+    }
+    if (code === CHAR_DOT2) {
+      if (startDot === -1) startDot = i;
+      else if (preDotState !== 1) preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    if (end !== -1) {
+      ret.base = ret.name = path.slice(startPart, end);
+    }
+  } else {
+    ret.name = path.slice(startPart, startDot);
+    ret.base = path.slice(startPart, end);
+    ret.ext = path.slice(startDot, end);
+  }
+  ret.base = ret.base || "\\";
+  if (startPart > 0 && startPart !== rootEnd) {
+    ret.dir = path.slice(0, startPart - 1);
+  } else ret.dir = ret.root;
+  return ret;
 }
 
 // https://jsr.io/@std/path/0.225.2/windows/resolve.ts
@@ -1104,6 +1384,105 @@ function isPosixPathSeparator4(code) {
   return code === CHAR_FORWARD_SLASH2;
 }
 
+// https://jsr.io/@std/path/0.225.2/posix/normalize.ts
+function normalize5(path) {
+  assertArg7(path);
+  const isAbsolute6 = isPosixPathSeparator4(path.charCodeAt(0));
+  const trailingSeparator = isPosixPathSeparator4(
+    path.charCodeAt(path.length - 1)
+  );
+  path = normalizeString2(path, !isAbsolute6, "/", isPosixPathSeparator4);
+  if (path.length === 0 && !isAbsolute6) path = ".";
+  if (path.length > 0 && trailingSeparator) path += "/";
+  if (isAbsolute6) return `/${path}`;
+  return path;
+}
+
+// https://jsr.io/@std/path/0.225.2/posix/join.ts
+function join5(...paths) {
+  if (paths.length === 0) return ".";
+  let joined;
+  for (let i = 0; i < paths.length; ++i) {
+    const path = paths[i];
+    assertPath2(path);
+    if (path.length > 0) {
+      if (!joined) joined = path;
+      else joined += `/${path}`;
+    }
+  }
+  if (!joined) return ".";
+  return normalize5(joined);
+}
+
+// https://jsr.io/@std/path/0.225.2/posix/parse.ts
+function parse2(path) {
+  assertPath2(path);
+  const ret = { root: "", dir: "", base: "", ext: "", name: "" };
+  if (path.length === 0) return ret;
+  const isAbsolute6 = isPosixPathSeparator4(path.charCodeAt(0));
+  let start;
+  if (isAbsolute6) {
+    ret.root = "/";
+    start = 1;
+  } else {
+    start = 0;
+  }
+  let startDot = -1;
+  let startPart = 0;
+  let end = -1;
+  let matchedSlash = true;
+  let i = path.length - 1;
+  let preDotState = 0;
+  for (; i >= start; --i) {
+    const code = path.charCodeAt(i);
+    if (isPosixPathSeparator4(code)) {
+      if (!matchedSlash) {
+        startPart = i + 1;
+        break;
+      }
+      continue;
+    }
+    if (end === -1) {
+      matchedSlash = false;
+      end = i + 1;
+    }
+    if (code === CHAR_DOT2) {
+      if (startDot === -1) startDot = i;
+      else if (preDotState !== 1) preDotState = 1;
+    } else if (startDot !== -1) {
+      preDotState = -1;
+    }
+  }
+  if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+  preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+  preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+    if (end !== -1) {
+      if (startPart === 0 && isAbsolute6) {
+        ret.base = ret.name = path.slice(1, end);
+      } else {
+        ret.base = ret.name = path.slice(startPart, end);
+      }
+    }
+    ret.base = ret.base || "/";
+  } else {
+    if (startPart === 0 && isAbsolute6) {
+      ret.name = path.slice(1, startDot);
+      ret.base = path.slice(1, end);
+    } else {
+      ret.name = path.slice(startPart, startDot);
+      ret.base = path.slice(startPart, end);
+    }
+    ret.ext = path.slice(startDot, end);
+  }
+  if (startPart > 0) {
+    ret.dir = stripTrailingSeparators2(
+      path.slice(0, startPart - 1),
+      isPosixPathSeparator4
+    );
+  } else if (isAbsolute6) ret.dir = "/";
+  return ret;
+}
+
 // https://jsr.io/@std/path/0.225.2/posix/resolve.ts
 function resolve5(...pathSegments) {
   let resolvedPath = "";
@@ -1210,6 +1589,16 @@ var osType = (() => {
 })();
 var isWindows5 = osType === "windows";
 
+// https://jsr.io/@std/path/0.225.2/join.ts
+function join6(...paths) {
+  return isWindows5 ? join4(...paths) : join5(...paths);
+}
+
+// https://jsr.io/@std/path/0.225.2/parse.ts
+function parse3(path) {
+  return isWindows5 ? parse(path) : parse2(path);
+}
+
 // https://jsr.io/@std/path/0.225.2/relative.ts
 function relative3(from, to) {
   return isWindows5 ? relative(from, to) : relative2(from, to);
@@ -1277,10 +1666,11 @@ async function renderRuler(input, opts) {
       console.error(e);
     }
     let path = firstFile ? relative3(Deno.cwd(), firstFile.path) : tokens[idx].meta.match[1];
-    if (input.options.stripExtension) {
-      path = path.replace(/\.[^.]+$/, "");
-    }
-    return `<a href="/${path}">${path}</a>`;
+    if (input.options.basePath.length > 0)
+      path = join6(input.options.basePath, path);
+    if (input.options.stripExtension)
+      path = path.replace(parse3(path).ext, "");
+    return `<a href="${path}">${parse3(path).name}</a>`;
   };
 }
 async function persistOutput(input, opts) {
