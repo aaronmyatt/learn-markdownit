@@ -86,7 +86,7 @@ export async function renderRuler (input, opts) {
     } else {
         path = join('/', path)
     }
-    
+
     if (input.options.basePath.length > 0)
         path = join(input.options.basePath, path)
 
