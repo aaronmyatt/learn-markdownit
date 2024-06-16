@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html><head><title>Learn markdown-it</title><base href="https://aaronmyatt.github.io/learn-markdownit/"><link rel="stylesheet" href="styles.css"></head><body><div class="relative isolate z-10 shadow"><div class="bg-white py-5"><div class="mx-auto max-w-7xl px-6 lg:px-8"><div class="dropdown"><div class="btn m-1" tabindex="0" role="button"> Learn more<svg class="h-5 w-5" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"></path></svg></div><ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-10" tabindex="0"><li><a href="https://aaronmyatt.github.io/learn-markdownit//config/">config</a></li><li><a href="https://aaronmyatt.github.io/learn-markdownit//regexPlugin/">regexPlugin</a></li><li><a href="https://aaronmyatt.github.io/learn-markdownit//">index</a></li><li><a href="https://aaronmyatt.github.io/learn-markdownit//plugins/">plugins</a></li></ul></div></div></div></div><div class="container space-y-10 my-10 flex flex-col items-center mx-auto"><div class="flex gap-4"><button class="block btn btn-lg btn-wide btn-primary" type="button" onclick="presentJSON()">Run Pipedown</button><div class="drawer drawer-end hidden" id="htmldrawer"><input class="drawer-toggle" id="my-drawer-4" type="checkbox"><div class="drawer-content"><label class="drawer-button btn btn-primary btn-lg btn-wide" for="my-drawer-4">Render HTML</label></div><div class="drawer-side z-20"><label class="drawer-overlay" for="my-drawer-4" aria-label="close sidebar"></label><div class="p-4 min-h-full bg-base-200 text-base-content space-y-6 w-11/12 md:w-1/2" id="htmldrawerbody"></div></div></div></div><div class="prose prose-2xl"><h1>Plugins for markdown-it</h1>
+<html><head><title>Learn markdown-it</title><base href="https://aaronmyatt.github.io/learn-markdownit/"><link rel="stylesheet" href="styles.css"></head><body><div class="relative isolate z-10 shadow"><div class="bg-white py-5"><div class="mx-auto max-w-7xl px-6 lg:px-8"><div class="dropdown"><div class="btn m-1" tabindex="0" role="button"> Learn more<svg class="h-5 w-5" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"></path></svg></div><ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-10" tabindex="0"><li><a href="https://aaronmyatt.github.io/learn-markdownit//regexPluginResearch/">pluginResearch</a></li><li><a href="https://aaronmyatt.github.io/learn-markdownit//">index</a></li><li><a href="https://aaronmyatt.github.io/learn-markdownit//plugins/">plugins</a></li><li><a href="https://aaronmyatt.github.io/learn-markdownit//wikilinkPlugin/">wikilinkPlugin</a></li></ul></div></div></div></div><div class="container space-y-10 my-10 flex flex-col items-center mx-auto"><div class="flex gap-4"><button class="block btn btn-lg btn-wide btn-primary" type="button" onclick="presentJSON()">Run Pipedown</button><div class="drawer drawer-end hidden" id="htmldrawer"><input class="drawer-toggle" id="my-drawer-4" type="checkbox"><div class="drawer-content"><label class="drawer-button btn btn-primary btn-lg btn-wide" for="my-drawer-4">Render HTML</label></div><div class="drawer-side z-20"><label class="drawer-overlay" for="my-drawer-4" aria-label="close sidebar"></label><div class="p-4 min-h-full bg-base-200 text-base-content space-y-6 w-11/12 md:w-1/2" id="htmldrawerbody"></div></div></div></div><div class="prose prose-2xl"><h1>Plugins for markdown-it</h1>
 <pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">import</span> markdownit <span class="hljs-keyword">from</span> <span class="hljs-string">"npm:markdown-it"</span>;
 </code></pre>
 <h2>How do we make plugins anyway</h2>
-<p>No idea. Let's try passing a plain function to markdown-it and see what parameters we get.</p>
+<p>No idea. Let's try passing a plain function to markdown-it <code>use</code> and see what parameters we get.</p>
 <pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">const</span> md = <span class="hljs-title function_">markdownit</span>().<span class="hljs-title function_">use</span>(<span class="hljs-function">(<span class="hljs-params">md, options</span>) =&gt;</span> {
     <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>({md, options})
 })
@@ -12,21 +12,26 @@ $p.<span class="hljs-title function_">set</span>(input, <span class="hljs-string
 <p>We get the <code>MarkdownIt</code> (<code>md</code>) instance and, presumably, any user defined <code>options</code>.</p>
 <p><img src="img/mditInstance.png" alt="markdown-it instance properties"></p>
 <h2>rulers to rule them all</h2>
-<p>After digging around some official plugins it seems we want to be thinking in terms of <code>Rulers</code>. These are classes that define how to manipulate parser tokens. Let's add a wee Ruler and see what happens. My interest is to match wikilink like text (<code>[[wikilink]]</code>) and convert it to a link to a matching file in the project. So we probably want a fairly granular ruler that will match inline tokens, like text, rather than block tokens like paragraphs.</p>
+<p>After digging around a few official plugins, it seems we want to be thinking in terms of <code>Rulers</code>. These are classes that define how to detect markdown syntax and how they should be represented as HTML. Let's add a wee Ruler and see what happens.</p>
+<p>My interest is to match wikilink like text (<code>[[wikilink]]</code>) and convert it to HTML link that points to a matching file in the project. So we probably want a fairly granular ruler that will match inline tokens, like text, rather than block tokens like paragraphs.</p>
 <pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">const</span> md = <span class="hljs-title function_">markdownit</span>().<span class="hljs-title function_">use</span>(<span class="hljs-function">(<span class="hljs-params">md, options</span>) =&gt;</span> {
-    md.<span class="hljs-property">inline</span>.<span class="hljs-property">ruler</span>.<span class="hljs-title function_">push</span>(<span class="hljs-string">'wiki'</span>, <span class="hljs-function"><span class="hljs-params">state</span> =&gt;</span> {
+    md.<span class="hljs-property">inline</span>.<span class="hljs-property">ruler</span>.<span class="hljs-title function_">after</span>(<span class="hljs-string">'text'</span>, <span class="hljs-string">'wiki'</span>, <span class="hljs-function"><span class="hljs-params">state</span> =&gt;</span> {
         <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>({state})
     })
     <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">'#2'</span>, {md, options})
 })
 $p.<span class="hljs-title function_">set</span>(input, <span class="hljs-string">'/markdown.dirtyInlinePlugin'</span>, md.<span class="hljs-title function_">render</span>(<span class="hljs-string">`# hello
+
 how about now
+
 [wat](/wat)
+
 [[wikilink]]`</span>))
 </code></pre>
 <ul>
 <li>Initially it didn't match anything! I suspect this is because I defined an <em>inline</em> rule, but didn't provide any markdown syntax that would actually trigger it (<code># hello</code>).</li>
 <li>I could explicitly trigger the inline rule by invoking <code>md.renderInline</code>, but I suspect that is a hack.</li>
+<li>A mistake made was defining the sample markdown without any line breaks between paragraphs, Without these the parser treats the whole blob as one "block".</li>
 <li>After adding specific inline syntax, like a link, we got the following object out:</li>
 <li><img src="img/inlineRuleState.png" alt="Inline Rule State"></li>
 </ul>

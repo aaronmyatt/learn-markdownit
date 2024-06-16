@@ -2,14 +2,14 @@
   "imports": {
     "/": "./",
     "./": "./",
+    "regexPluginResearch": "./regexPluginResearch/index.ts",
+    "/regexPluginResearch": "./regexPluginResearch/index.ts",
     "config": "./config/index.ts",
     "/config": "./config/index.ts",
     "plugins": "./plugins/index.ts",
     "/plugins": "./plugins/index.ts",
     "deploy": "./deploy/index.ts",
     "/deploy": "./deploy/index.ts",
-    "regexPlugin": "./regexPlugin/index.ts",
-    "/regexPlugin": "./regexPlugin/index.ts",
     "presentOutput": "./scripts/presentOutput/index.ts",
     "/scripts/presentOutput": "./scripts/presentOutput/index.ts",
     "evalPipedown": "./scripts/evalPipedown/index.ts",
@@ -17,7 +17,9 @@
     "presentMarkdown": "./scripts/presentMarkdown/index.ts",
     "/scripts/presentMarkdown": "./scripts/presentMarkdown/index.ts",
     "index": "./index/index.ts",
-    "/index": "./index/index.ts"
+    "/index": "./index/index.ts",
+    "wikilinkPlugin": "./wikilinkPlugin/index.ts",
+    "/wikilinkPlugin": "./wikilinkPlugin/index.ts"
   },
   "lint": {
     "include": [

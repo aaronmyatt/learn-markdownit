@@ -1,11 +1,12 @@
+import { default as regexPluginResearch, process as regexPluginResearchProcess } from "regexPluginResearch";
 import { default as config, process as configProcess } from "config";
 import { default as plugins, process as pluginsProcess } from "plugins";
 import { default as deploy, process as deployProcess } from "deploy";
-import { default as regexPlugin, process as regexPluginProcess } from "regexPlugin";
 import { default as presentOutput, process as presentOutputProcess } from "presentOutput";
 import { default as evalPipedown, process as evalPipedownProcess } from "evalPipedown";
 import { default as presentMarkdown, process as presentMarkdownProcess } from "presentMarkdown";
 import { default as index, process as indexProcess } from "index";
+import { default as wikilinkPlugin, process as wikilinkPluginProcess } from "wikilinkPlugin";
 import $p from "jsr:@pd/pointers@0.1.1";
 
 function test(pipe, { exclude = [], test = true } = {}) {
@@ -44,19 +45,21 @@ async function step(pipe, { exclude = [], test = true } = {}) {
   }
 }
 
+const testRegexPluginResearch = () => test(regexPluginResearch);
 const testConfig = () => test(config);
 const testPlugins = () => test(plugins);
 const testDeploy = () => test(deploy);
-const testRegexPlugin = () => test(regexPlugin);
 const testPresentOutput = () => test(presentOutput);
 const testEvalPipedown = () => test(evalPipedown);
 const testPresentMarkdown = () => test(presentMarkdown);
 const testIndex = () => test(index);
+const testWikilinkPlugin = () => test(wikilinkPlugin);
+const stepRegexPluginResearch = () => step(regexPluginResearch);
 const stepConfig = () => step(config);
 const stepPlugins = () => step(plugins);
 const stepDeploy = () => step(deploy);
-const stepRegexPlugin = () => step(regexPlugin);
 const stepPresentOutput = () => step(presentOutput);
 const stepEvalPipedown = () => step(evalPipedown);
 const stepPresentMarkdown = () => step(presentMarkdown);
 const stepIndex = () => step(index);
+const stepWikilinkPlugin = () => step(wikilinkPlugin);

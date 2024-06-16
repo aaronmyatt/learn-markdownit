@@ -1,6 +1,6 @@
 {
-  "fileName": "regexPlugin",
-  "dir": ".pd/regexPlugin",
+  "fileName": "regexPluginResearch",
+  "dir": ".pd/regexPluginResearch",
   "config": {
     "on": {},
     "emit": true,
@@ -14,13 +14,10 @@
       "temp",
       "docs",
       "_site"
-    ],
-    "build": [
-      "esm"
     ]
   },
-  "name": "Regex Plugins for markdown-it",
-  "camelName": "regexPluginsForMarkdown-It",
+  "name": "Wikilink Plugin research",
+  "camelName": "wikilinkPluginResearch",
   "steps": [
     {
       "name": "emitStartEvent",
@@ -45,13 +42,23 @@
       "internal": true
     },
     {
-      "code": "import markdownit from \"npm:markdown-it\";\n",
+      "code": "import markdownit from \"npm:markdown-it\";\nimport { walkSync } from \"jsr:@std/fs\";\nimport { relative } from \"jsr:@std/path\";\n",
       "range": [
-        25,
-        27
+        34,
+        36
       ],
-      "name": "Regex Plugins for markdown-it",
-      "funcName": "regexPluginsForMarkdown-It",
+      "name": "Wikilink Plugin research",
+      "funcName": "wikilinkPluginResearch",
+      "inList": false
+    },
+    {
+      "code": "const md = markdownit().use((md, options) => {\n    md.inline.ruler.push('wikimatch', (state, silent) => {\n        // thanks copilot? 👇\n        // state.src = state.src.replace(/\\[\\[(.*?)\\]\\]/g, (match, content) => {\n        //     return `<a href=\"/${content}\">${content}</a>`\n        // })\n\n        const match = /^\\[\\[(.*)\\]\\]/.exec(state.src.slice(state.pos))\n        if(!match) {\n            console.log('no match',state.src.slice(state.pos))\n            return;\n        }\n        // let the parser skip what we've matched\n        state.pos += match[0].length\n\n        if (silent) return true\n        const token = state.push('wikimatch', '', 0)\n        token.meta = {match}\n        return true;\n    })\n    md.renderer.rules.wikimatch = (tokens, idx) => {\n        let firstFile: FileInfo | undefined;\n        try {\n            for (const file of walkSync(Deno.cwd(), { skip: [/\\.pd/, /_site/]})) {\n                if (file.path.includes(tokens[idx].meta.match[1])) {\n                    firstFile = file;\n                    break;\n                }\n            }\n        } catch (e) {\n            // wont work in the browser\n            console.error(e)\n        }\n\n        const path = firstFile ? relative(Deno.cwd(), firstFile.path) : tokens[idx].meta.match[1];\n\n        console.log({firstFile})\n        return `<a href=\"/${path}\">${path}</a>`\n    }\n})\n\n$p.set(input, '/markdown.dirtyInlinePlugin', md.render(`# hello\n\nhow about now\n\n[wat](/wat)\n\n[[evalPipedown]]`))\n",
+      "range": [
+        48,
+        50
+      ],
+      "name": "start simple",
+      "funcName": "startSimple",
       "inList": false
     },
     {

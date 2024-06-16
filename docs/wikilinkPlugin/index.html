@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html><head><title>Learn markdown-it</title><base href="https://aaronmyatt.github.io/learn-markdownit/"><link rel="stylesheet" href="styles.css"></head><body><div class="relative isolate z-10 shadow"><div class="bg-white py-5"><div class="mx-auto max-w-7xl px-6 lg:px-8"><div class="dropdown"><div class="btn m-1" tabindex="0" role="button"> Learn more<svg class="h-5 w-5" viewbox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"></path></svg></div><ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-10" tabindex="0"><li><a href="https://aaronmyatt.github.io/learn-markdownit//regexPluginResearch/">pluginResearch</a></li><li><a href="https://aaronmyatt.github.io/learn-markdownit//">index</a></li><li><a href="https://aaronmyatt.github.io/learn-markdownit//plugins/">plugins</a></li><li><a href="https://aaronmyatt.github.io/learn-markdownit//wikilinkPlugin/">wikilinkPlugin</a></li></ul></div></div></div></div><div class="container space-y-10 my-10 flex flex-col items-center mx-auto"><div class="flex gap-4"><button class="block btn btn-lg btn-wide btn-primary" type="button" onclick="presentJSON()">Run Pipedown</button><div class="drawer drawer-end hidden" id="htmldrawer"><input class="drawer-toggle" id="my-drawer-4" type="checkbox"><div class="drawer-content"><label class="drawer-button btn btn-primary btn-lg btn-wide" for="my-drawer-4">Render HTML</label></div><div class="drawer-side z-20"><label class="drawer-overlay" for="my-drawer-4" aria-label="close sidebar"></label><div class="p-4 min-h-full bg-base-200 text-base-content space-y-6 w-11/12 md:w-1/2" id="htmldrawerbody"></div></div></div></div><div class="prose prose-2xl"><blockquote>
+<p>This wont work in the browser sadly, it relies on <a href="https://deno.land/manual/runtime/file_system">Deno's filesystem</a> API.</p>
+</blockquote>
+<h1>Wikilink Plugin</h1>
+<p>Based on learnings from <a href="/regexPluginResearch">regexPluginResearch</a></p>
+<pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">import</span> markdownit <span class="hljs-keyword">from</span> <span class="hljs-string">"npm:markdown-it"</span>;
+<span class="hljs-keyword">import</span> { walkSync } <span class="hljs-keyword">from</span> <span class="hljs-string">"jsr:@std/fs"</span>;
+<span class="hljs-keyword">import</span> { relative } <span class="hljs-keyword">from</span> <span class="hljs-string">"jsr:@std/path"</span>;
+</code></pre>
+<h2>Inputs</h2>
+<pre><code class="language-json hljs"><span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">"mdi"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"MarkdownIt instance"</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">"options"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"Merged Plugin+Markdown-it options"</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<ul>
+<li>Options:
+<ul>
+<li>/regex:     Override the default regex pattern</li>
+<li>/extension: Strip the matching file extension</li>
+</ul>
+</li>
+</ul>
+<h2>inlineRuler</h2>
+<ul>
+<li>Looks for anything matching <code>[[wikilink]]</code> syntax</li>
+<li>Inserts an empty Token with the matched text so we can customise the rendered output</li>
+</ul>
+<pre><code class="language-ts hljs language-typescript">input.<span class="hljs-property">mdi</span>.<span class="hljs-property">inline</span>.<span class="hljs-property">ruler</span>.<span class="hljs-title function_">push</span>(<span class="hljs-string">'wikimatch'</span>, <span class="hljs-function">(<span class="hljs-params">state, silent</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> regexOverride = input.<span class="hljs-property">options</span>.<span class="hljs-property">regex</span> &amp;&amp; <span class="hljs-keyword">new</span> <span class="hljs-title class_">RegExp</span>(input.<span class="hljs-property">options</span>.<span class="hljs-property">regex</span>)
+    <span class="hljs-keyword">const</span> regex = regexOverride || <span class="hljs-regexp">/^\[\[(.*)\]\]/</span>
+
+    <span class="hljs-keyword">const</span> match = regex.<span class="hljs-title function_">exec</span>(state.<span class="hljs-property">src</span>.<span class="hljs-title function_">slice</span>(state.<span class="hljs-property">pos</span>))
+    <span class="hljs-keyword">if</span>(!match) <span class="hljs-keyword">return</span>;
+    <span class="hljs-comment">// let the parser skip what we've matched</span>
+    state.<span class="hljs-property">pos</span> += match[<span class="hljs-number">0</span>].<span class="hljs-property">length</span>
+
+    <span class="hljs-keyword">if</span> (silent) <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+    <span class="hljs-keyword">const</span> token = state.<span class="hljs-title function_">push</span>(<span class="hljs-string">'wikimatch'</span>, <span class="hljs-string">''</span>, <span class="hljs-number">0</span>)
+    token.<span class="hljs-property">meta</span> = {match}
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+})
+</code></pre>
+<h2>renderRuler</h2>
+<ul>
+<li>Looks for the empty Token we inserted in the inlineRuler</li>
+<li>Tries to find a file in the project that matches the wikilink text</li>
+<li>If found, replaces the Token with an HTML link to the file</li>
+<li>If not found, just renders the link as is</li>
+</ul>
+<pre><code class="language-ts hljs language-typescript">input.<span class="hljs-property">mdi</span>.<span class="hljs-property">renderer</span>.<span class="hljs-property">rules</span>.<span class="hljs-property">wikimatch</span> = <span class="hljs-function">(<span class="hljs-params">tokens, idx</span>) =&gt;</span> {
+    <span class="hljs-keyword">let</span> <span class="hljs-attr">firstFile</span>: <span class="hljs-title class_">FileInfo</span> | <span class="hljs-literal">undefined</span>;
+    <span class="hljs-keyword">try</span> {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> file <span class="hljs-keyword">of</span> <span class="hljs-title function_">walkSync</span>(<span class="hljs-title class_">Deno</span>.<span class="hljs-title function_">cwd</span>(), { <span class="hljs-attr">skip</span>: [<span class="hljs-regexp">/\.pd/</span>, <span class="hljs-regexp">/_site/</span>]})) {
+            <span class="hljs-keyword">if</span> (file.<span class="hljs-property">path</span>.<span class="hljs-title function_">includes</span>(tokens[idx].<span class="hljs-property">meta</span>.<span class="hljs-property">match</span>[<span class="hljs-number">1</span>])) {
+                firstFile = file;
+                <span class="hljs-keyword">break</span>;
+            }
+        }
+    } <span class="hljs-keyword">catch</span> (e) {
+        <span class="hljs-comment">// wont work in the browser</span>
+        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(e)
+    }
+
+    <span class="hljs-keyword">let</span> path = firstFile ? <span class="hljs-title function_">relative</span>(<span class="hljs-title class_">Deno</span>.<span class="hljs-title function_">cwd</span>(), firstFile.<span class="hljs-property">path</span>) : tokens[idx].<span class="hljs-property">meta</span>.<span class="hljs-property">match</span>[<span class="hljs-number">1</span>];
+
+    <span class="hljs-keyword">if</span> (input.<span class="hljs-property">options</span>.<span class="hljs-property">stripExtension</span>) {
+        path = path.<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/\.[^.]+$/</span>, <span class="hljs-string">''</span>)
+    }
+
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`&lt;a href="/<span class="hljs-subst">${path}</span>"&gt;<span class="hljs-subst">${path}</span>&lt;/a&gt;`</span>
+}
+</code></pre>
+<pre><code class="language-json hljs"><span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">"build"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">"esm"</span><span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+</div></div><script type="importmap">{
+  "imports": {
+    "/": "https://aaronmyatt.github.io/learn-markdownit/",
+    "./": "https://aaronmyatt.github.io/learn-markdownit/",
+    "evalPipedown": "./pd/scripts/evalPipedown/index.esm.js",
+    "presentOutput": "./pd/scripts/presentOutput/index.esm.js",
+    "presentMarkdown": "./pd/scripts/presentMarkdown/index.esm.js"
+  }
+}</script><script type="module">import presentOutput from "presentOutput";
+import presentMarkdown from "presentMarkdown";
+window.presentJSON = () => presentOutput.process().then(() => presentMarkdown.process());
+
+presentMarkdown.process();</script></body></html>

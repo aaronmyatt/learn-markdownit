@@ -266,8 +266,8 @@ var config_default = {
     {
       code: 'import markdownit from "npm:markdown-it";\n',
       range: [
-        15,
-        17
+        17,
+        19
       ],
       name: "Configuring markdown-it",
       funcName: "configuringMarkdown-It",

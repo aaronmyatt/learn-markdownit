@@ -53,14 +53,17 @@ $p.set(input, '/markdown.dirtyPlugin', md.render('# hello'))
 }
 export async function rulersToRuleThemAll (input, opts) {
     const md = markdownit().use((md, options) => {
-    md.inline.ruler.push('wiki', state => {
+    md.inline.ruler.after('text', 'wiki', state => {
         console.log({state})
     })
     console.log('#2', {md, options})
 })
 $p.set(input, '/markdown.dirtyInlinePlugin', md.render(`# hello
+
 how about now
+
 [wat](/wat)
+
 [[wikilink]]`))
 
 }

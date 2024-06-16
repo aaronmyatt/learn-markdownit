@@ -1,6 +1,6 @@
 {
-  "fileName": "index",
-  "dir": ".pd/index",
+  "fileName": "wikilinkPlugin",
+  "dir": ".pd/wikilinkPlugin",
   "config": {
     "on": {},
     "emit": true,
@@ -19,8 +19,8 @@
       "esm"
     ]
   },
-  "name": "Learning markdown-it",
-  "camelName": "learningMarkdown-It",
+  "name": "Wikilink Plugin",
+  "camelName": "wikilinkPlugin",
   "steps": [
     {
       "name": "emitStartEvent",
@@ -45,33 +45,33 @@
       "internal": true
     },
     {
-      "code": "import markdownit from \"npm:markdown-it\";\n\ninput.mdi = markdownit()\n$p.set(input, '/markdown/basics', input.mdi.render('# markdown-it rulezz!'))\n",
+      "code": "import markdownit from \"npm:markdown-it\";\nimport { walkSync } from \"jsr:@std/fs\";\nimport { relative } from \"jsr:@std/path\";\n",
       "range": [
-        53,
-        55
+        32,
+        34
       ],
-      "name": "basic usage",
-      "funcName": "basicUsage",
+      "name": "Wikilink Plugin",
+      "funcName": "wikilinkPlugin",
       "inList": false
     },
     {
-      "code": "$p.set(input, '/markdown/basicInline', input.mdi.renderInline('# markdown-it rulezz! __mdi__ *mdi*'))\n",
+      "code": "input.mdi.inline.ruler.push('wikimatch', (state, silent) => {\n    const regexOverride = input.options.regex && new RegExp(input.options.regex)\n    const regex = regexOverride || /^\\[\\[(.*)\\]\\]/\n\n    const match = regex.exec(state.src.slice(state.pos))\n    if(!match) return;\n    // let the parser skip what we've matched\n    state.pos += match[0].length\n\n    if (silent) return true\n    const token = state.push('wikimatch', '', 0)\n    token.meta = {match}\n    return true;\n})\n",
       "range": [
-        64,
-        66
+        67,
+        69
       ],
-      "name": "render inline",
-      "funcName": "renderInline",
+      "name": "inlineRuler",
+      "funcName": "inlineRuler",
       "inList": false
     },
     {
-      "code": "input.mdi = Object.keys(input.mdi);\n",
+      "code": "input.mdi.renderer.rules.wikimatch = (tokens, idx) => {\n    let firstFile: FileInfo | undefined;\n    try {\n        for (const file of walkSync(Deno.cwd(), { skip: [/\\.pd/, /_site/]})) {\n            if (file.path.includes(tokens[idx].meta.match[1])) {\n                firstFile = file;\n                break;\n            }\n        }\n    } catch (e) {\n        // wont work in the browser\n        console.error(e)\n    }\n\n    let path = firstFile ? relative(Deno.cwd(), firstFile.path) : tokens[idx].meta.match[1];\n\n    if (input.options.stripExtension) {\n        path = path.replace(/\\.[^.]+$/, '')\n    }\n\n    return `<a href=\"/${path}\">${path}</a>`\n}\n",
       "range": [
-        74,
-        76
+        87,
+        89
       ],
-      "name": "anonymous74",
-      "funcName": "anonymous74",
+      "name": "renderRuler",
+      "funcName": "renderRuler",
       "inList": false
     },
     {

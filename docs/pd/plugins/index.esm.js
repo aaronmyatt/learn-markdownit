@@ -290,18 +290,18 @@ var plugins_default = {
     {
       code: "const md = markdownit().use((md, options) => {\n    console.log({md, options})\n})\n$p.set(input, '/markdown.dirtyPlugin', md.render('# hello'))\n",
       range: [
-        24,
-        26
+        26,
+        28
       ],
       name: "How do we make plugins anyway",
       funcName: "howDoWeMakePluginsAnyway",
       inList: false
     },
     {
-      code: "const md = markdownit().use((md, options) => {\n    md.inline.ruler.push('wiki', state => {\n        console.log({state})\n    })\n    console.log('#2', {md, options})\n})\n$p.set(input, '/markdown.dirtyInlinePlugin', md.render(`# hello\nhow about now\n[wat](/wat)\n[[wikilink]]`))\n",
+      code: "const md = markdownit().use((md, options) => {\n    md.inline.ruler.after('text', 'wiki', state => {\n        console.log({state})\n    })\n    console.log('#2', {md, options})\n})\n$p.set(input, '/markdown.dirtyInlinePlugin', md.render(`# hello\n\nhow about now\n\n[wat](/wat)\n\n[[wikilink]]`))\n",
       range: [
-        51,
-        53
+        56,
+        58
       ],
       name: "rulers to rule them all",
       funcName: "rulersToRuleThemAll",
@@ -5766,14 +5766,17 @@ async function howDoWeMakePluginsAnyway(input, opts) {
 }
 async function rulersToRuleThemAll(input, opts) {
   const md = lib_default().use((md2, options) => {
-    md2.inline.ruler.push("wiki", (state) => {
+    md2.inline.ruler.after("text", "wiki", (state) => {
       console.log({ state });
     });
     console.log("#2", { md: md2, options });
   });
   mod_default2.set(input, "/markdown.dirtyInlinePlugin", md.render(`# hello
+
 how about now
+
 [wat](/wat)
+
 [[wikilink]]`));
 }
 async function persistOutput(input, opts) {

@@ -284,8 +284,8 @@ input.mdi = markdownit()
 $p.set(input, '/markdown/basics', input.mdi.render('# markdown-it rulezz!'))
 `,
       range: [
-        27,
-        29
+        53,
+        55
       ],
       name: "basic usage",
       funcName: "basicUsage",
@@ -294,8 +294,8 @@ $p.set(input, '/markdown/basics', input.mdi.render('# markdown-it rulezz!'))
     {
       code: "$p.set(input, '/markdown/basicInline', input.mdi.renderInline('# markdown-it rulezz! __mdi__ *mdi*'))\n",
       range: [
-        40,
-        42
+        64,
+        66
       ],
       name: "render inline",
       funcName: "renderInline",
@@ -304,11 +304,11 @@ $p.set(input, '/markdown/basics', input.mdi.render('# markdown-it rulezz!'))
     {
       code: "input.mdi = Object.keys(input.mdi);\n",
       range: [
-        50,
-        52
+        74,
+        76
       ],
-      name: "anonymous50",
-      funcName: "anonymous50",
+      name: "anonymous74",
+      funcName: "anonymous74",
       inList: false
     },
     {
@@ -5767,7 +5767,7 @@ async function basicUsage(input, opts) {
 async function renderInline(input, opts) {
   mod_default2.set(input, "/markdown/basicInline", input.mdi.renderInline("# markdown-it rulezz! __mdi__ *mdi*"));
 }
-async function anonymous50(input, opts) {
+async function anonymous74(input, opts) {
   input.mdi = Object.keys(input.mdi);
 }
 async function persistOutput(input, opts) {
@@ -5807,7 +5807,7 @@ var funcSequence = [
   persistInput,
   basicUsage,
   renderInline,
-  anonymous50,
+  anonymous74,
   persistOutput,
   emitEndEvent
 ];
@@ -5816,7 +5816,7 @@ var process = (input = {}) => pipe.process(input);
 pipe.json = index_default;
 var index_default2 = pipe;
 export {
-  anonymous50,
+  anonymous74,
   basicUsage,
   index_default2 as default,
   emitEndEvent,

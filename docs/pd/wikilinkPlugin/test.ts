@@ -2,7 +2,7 @@ import {assertEquals} from "jsr:@std/assert"
 import { assertSnapshot } from "jsr:@std/testing/snapshot";
 import {pipe, rawPipe} from "./index.ts";
 
-Deno.test("Regex Plugins for markdown-it", async (t) => {
+Deno.test("Wikilink Plugin", async (t) => {
   rawPipe.config = rawPipe.config || {};
   rawPipe.config.inputs = rawPipe.config.inputs || [];
   

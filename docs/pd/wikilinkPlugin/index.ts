@@ -5,6 +5,8 @@ false
 import rawPipe from "./index.json" with {type: "json"};
 import * as deps from "/deps.ts";
 import markdownit from "npm:markdown-it";
+import { walkSync } from "jsr:@std/fs";
+import { relative } from "jsr:@std/path";
 
 export async function emitStartEvent (input, opts) {
     const event = new CustomEvent('pd:pipe:start', {detail: {input, opts}})
@@ -40,19 +42,52 @@ export async function persistInput (input, opts) {
       }
       
 }
-export async function basicUsage (input, opts) {
+export async function wikilinkPlugin (input, opts) {
     
 
-input.mdi = markdownit()
-$p.set(input, '/markdown/basics', input.mdi.render('# markdown-it rulezz!'))
+
 
 }
-export async function renderInline (input, opts) {
-    $p.set(input, '/markdown/basicInline', input.mdi.renderInline('# markdown-it rulezz! __mdi__ *mdi*'))
+export async function inlineRuler (input, opts) {
+    input.mdi.inline.ruler.push('wikimatch', (state, silent) => {
+    const regexOverride = input.options.regex && new RegExp(input.options.regex)
+    const regex = regexOverride || /^\[\[(.*)\]\]/
+
+    const match = regex.exec(state.src.slice(state.pos))
+    if(!match) return;
+    // let the parser skip what we've matched
+    state.pos += match[0].length
+
+    if (silent) return true
+    const token = state.push('wikimatch', '', 0)
+    token.meta = {match}
+    return true;
+})
 
 }
-export async function anonymous74 (input, opts) {
-    input.mdi = Object.keys(input.mdi);
+export async function renderRuler (input, opts) {
+    input.mdi.renderer.rules.wikimatch = (tokens, idx) => {
+    let firstFile: FileInfo | undefined;
+    try {
+        for (const file of walkSync(Deno.cwd(), { skip: [/\.pd/, /_site/]})) {
+            if (file.path.includes(tokens[idx].meta.match[1])) {
+                firstFile = file;
+                break;
+            }
+        }
+    } catch (e) {
+        // wont work in the browser
+        console.error(e)
+    }
+
+    let path = firstFile ? relative(Deno.cwd(), firstFile.path) : tokens[idx].meta.match[1];
+
+    if (input.options.stripExtension) {
+        path = path.replace(/\.[^.]+$/, '')
+    }
+
+    return `<a href="/${path}">${path}</a>`
+}
 
 }
 export async function persistOutput (input, opts) {
@@ -91,7 +126,7 @@ export async function emitEndEvent (input, opts) {
 }
 
 const funcSequence = [
-emitStartEvent, persistInput, basicUsage, renderInline, anonymous74, persistOutput, emitEndEvent
+emitStartEvent, persistInput, wikilinkPlugin, inlineRuler, renderRuler, persistOutput, emitEndEvent
 ]
 const pipe = Pipe(funcSequence, rawPipe);
 const process = (input={}) => pipe.process(input);

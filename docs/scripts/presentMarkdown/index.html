@@ -8,7 +8,7 @@
 input.<span class="hljs-property">name</span> = input.<span class="hljs-property">url</span>.<span class="hljs-property">pathname</span>.<span class="hljs-title function_">split</span>(<span class="hljs-string">'/'</span>).<span class="hljs-title function_">filter</span>(<span class="hljs-title class_">Boolean</span>).<span class="hljs-title function_">filter</span>(<span class="hljs-function"><span class="hljs-params">part</span> =&gt;</span> part !== <span class="hljs-string">'learn-markdownit'</span>).<span class="hljs-title function_">find</span>(<span class="hljs-title class_">Boolean</span>) || <span class="hljs-string">'index'</span>
 </code></pre>
 <h2>fetchMarkdown</h2>
-<p>[<a href="evalPipedown.md" title="Eval PD">evalPipedown</a>] will drop what it evaluates in localStorage. We will fetch it from there.</p>
+<p><a href="/scripts/evalPipedown">scripts/evalPipedown</a> will drop what it evaluates in localStorage. We will fetch it from there.</p>
 <pre><code class="language-ts hljs language-typescript"><span class="hljs-keyword">const</span> {markdown} = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">parse</span>(<span class="hljs-variable language_">localStorage</span>.<span class="hljs-title function_">getItem</span>(<span class="hljs-string">'evalPipedown::'</span>+input.<span class="hljs-property">name</span>) || <span class="hljs-string">'{}'</span>)
 input.<span class="hljs-property">markdown</span> = markdown
 </code></pre>
