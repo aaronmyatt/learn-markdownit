@@ -26,6 +26,7 @@
       "jsr:@std/log@0.224.1": "jsr:@std/log@0.224.1",
       "jsr:@std/media-types@^1.0.0-rc.1": "jsr:@std/media-types@1.0.0-rc.1",
       "jsr:@std/net@^0.224.2": "jsr:@std/net@0.224.3",
+      "jsr:@std/path": "jsr:@std/path@0.225.2",
       "jsr:@std/path@0.225.2": "jsr:@std/path@0.225.2",
       "jsr:@std/path@^0.225.1": "jsr:@std/path@0.225.2",
       "jsr:@std/path@^0.225.2": "jsr:@std/path@0.225.2",

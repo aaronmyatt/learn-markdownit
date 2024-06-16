@@ -13,7 +13,12 @@ const basePath = prodOrNot ? "https://aaronmyatt.github.io/learn-markdownit/" : 
 const site = lume({
 }, {
     markdown: {
-        plugins: [Plugin({stripExtension:true,regex:false,basePath})]
+        plugins: [Plugin({
+            stripExtension:true,
+            regex:false,
+            basePath:"",
+            relativePaths:true
+        })]
     }
 });
 
