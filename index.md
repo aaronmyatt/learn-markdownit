@@ -35,6 +35,12 @@ the top level keys.
 input.mdi = Object.keys(input.mdi);
 ```
 
+## Scripts
+Mainly to test whether the wikilinks are working in nested directories, you can checkout some of the scripts used to make evaluating and presenting Pipedown scripts in the browser possible:
+- [[evalPipedown]]
+- [[presentMarkdown]]
+- [[presentOutput]]
+
 ```json
 {
     "build": ["esm"]

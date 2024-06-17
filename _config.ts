@@ -5,7 +5,7 @@ import tailwindcss from "lume/plugins/tailwindcss.ts";
 import postcss from "lume/plugins/postcss.ts";
 import typography from "npm:@tailwindcss/typography";
 import daisyui from "npm:daisyui";
-import {Plugin} from "./wikiMatchPlugin.ts";
+import {Plugin} from "./plugin/mod.ts";
 
 const prodOrNot = Deno.env.get('PROD')
 const basePath = prodOrNot ? "https://aaronmyatt.github.io/learn-markdownit/" : "http://localhost:3000/"

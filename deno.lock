@@ -38,6 +38,7 @@
       "npm:@js-temporal/polyfill@0.4.4": "npm:@js-temporal/polyfill@0.4.4",
       "npm:@tailwindcss/typography": "npm:@tailwindcss/typography@0.5.13_tailwindcss@3.4.3__postcss@8.4.38",
       "npm:@types/estree@1.0.5": "npm:@types/estree@1.0.5",
+      "npm:@types/markdown-it": "npm:@types/markdown-it@14.1.1",
       "npm:@types/pug@2.0.10": "npm:@types/pug@2.0.10",
       "npm:autoprefixer@10.4.19": "npm:autoprefixer@10.4.19_postcss@8.4.38",
       "npm:daisyui": "npm:daisyui@4.7.2_postcss@8.4.38",
@@ -269,6 +270,21 @@
       },
       "@types/estree@1.0.5": {
         "integrity": "sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==",
+        "dependencies": {}
+      },
+      "@types/linkify-it@5.0.0": {
+        "integrity": "sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==",
+        "dependencies": {}
+      },
+      "@types/markdown-it@14.1.1": {
+        "integrity": "sha512-4NpsnpYl2Gt1ljyBGrKMxFYAYvpqbnnkgP/i/g+NLpjEUa3obn1XJCur9YbEXKDAkaXqsR1LbDnGEJ0MmKFxfg==",
+        "dependencies": {
+          "@types/linkify-it": "@types/linkify-it@5.0.0",
+          "@types/mdurl": "@types/mdurl@2.0.0"
+        }
+      },
+      "@types/mdurl@2.0.0": {
+        "integrity": "sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg==",
         "dependencies": {}
       },
       "@types/pug@2.0.10": {
