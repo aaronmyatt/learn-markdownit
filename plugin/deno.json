@@ -1,5 +1,10 @@
 {
     "name": "@atm/markdown-it-wikilink-plugin",
     "version": "0.1.0",
-    "exports": "./mod.ts"
+    "exports": "./mod.ts",
+    "tasks": {
+        "build": "cd .. && pd build",
+        "copy": "deno task build; cp ../.pd/wikilinkPlugin/index.esm.js ./wikilinkPlugin.js",
+        "publish": "deno task copy; deno publish --allow-slow-types"
+    }
 }

@@ -1,0 +1,26 @@
+{
+  "version": "3",
+  "packages": {
+    "specifiers": {
+      "npm:@types/markdown-it@14.1.1": "npm:@types/markdown-it@14.1.1"
+    },
+    "npm": {
+      "@types/linkify-it@5.0.0": {
+        "integrity": "sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==",
+        "dependencies": {}
+      },
+      "@types/markdown-it@14.1.1": {
+        "integrity": "sha512-4NpsnpYl2Gt1ljyBGrKMxFYAYvpqbnnkgP/i/g+NLpjEUa3obn1XJCur9YbEXKDAkaXqsR1LbDnGEJ0MmKFxfg==",
+        "dependencies": {
+          "@types/linkify-it": "@types/linkify-it@5.0.0",
+          "@types/mdurl": "@types/mdurl@2.0.0"
+        }
+      },
+      "@types/mdurl@2.0.0": {
+        "integrity": "sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg==",
+        "dependencies": {}
+      }
+    }
+  },
+  "remote": {}
+}

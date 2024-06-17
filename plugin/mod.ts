@@ -1,4 +1,4 @@
-import pipe from "../.pd/wikilinkPlugin/index.esm.js"
+import pipe from "./wikilinkPlugin.js"
 import type { default as MarkdownIt, Options } from "npm:@types/markdown-it@14.1.1";
 
 export const Plugin = (userOptions={
